@@ -1,0 +1,7 @@
+\.idea/
+node_modules/
+spec/
+example-app/
+src/
+package-lock\.json
+*.db

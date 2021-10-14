@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "./build",
+    "target": "es6",
+    "lib": ["ES2020"],
+    "esModuleInterop": true,
+    "jsx": "react",
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "noImplicitThis": true,
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false,
+    "sourceMap": true,
+    "paths": {
+      "react": ["node_modules/@types/react"],
+      "adminjs": ["node_modules/adminjs"]
+    },
+    "skipLibCheck": true
+  },
+  "include": [
+    "./src/**/*"
+  ],
+}
