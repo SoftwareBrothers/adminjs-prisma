@@ -16,9 +16,8 @@ describe('Property', () => {
 
   beforeAll(async () => {
     prisma = new PrismaClient();
-    Resource.setClient(prisma);
     const dmmf = ((prisma as any)._dmmf as DMMFClass);
-    resource = new Resource(dmmf.modelMap.Post);
+    resource = new Resource({ model: dmmf.modelMap.Post, client: prisma });
     properties = resource.properties();
   });
 

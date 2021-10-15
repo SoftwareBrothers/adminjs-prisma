@@ -20,8 +20,7 @@ describe('Resource', () => {
   });
 
   beforeEach(async () => {
-    Resource.setClient(prisma);
-    resource = new Resource(dmmf.modelMap.User);
+    resource = new Resource({ model: dmmf.modelMap.User, client: prisma });
 
     await prisma.profile.deleteMany({});
     await prisma.user.deleteMany({});
@@ -33,18 +32,11 @@ describe('Resource', () => {
   });
 
   describe('.isAdapterFor', () => {
-    it('returns false if `prismaClient` is not set before', () => {
-      Resource.setClient(null as any);
-      expect(Resource.isAdapterFor(dmmf.modelMap.Post)).toEqual(false);
-    });
-
-    it('returns true when Entity is given and `prismaClient` is set', () => {
-      Resource.setClient(prisma);
-      expect(Resource.isAdapterFor(dmmf.modelMap.Post)).toEqual(true);
+    it('returns true when Prisma model is given', () => {
+      expect(Resource.isAdapterFor({ model: dmmf.modelMap.Post, client: prisma })).toEqual(true);
     });
 
     it('returns false for any other kind of resources', () => {
-      Resource.setClient(prisma);
       expect(Resource.isAdapterFor({} as any)).toEqual(false);
     });
   });
@@ -121,7 +113,7 @@ describe('Resource', () => {
 
     beforeEach(async () => {
       user = await resource.create(data);
-      profileResource = new Resource(dmmf.modelMap.Profile);
+      profileResource = new Resource({ model: dmmf.modelMap.Profile, client: prisma });
     });
 
     it('creates new resource', async () => {

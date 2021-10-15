@@ -6,23 +6,23 @@ import { BaseDatabase } from 'adminjs';
 import { Resource } from './Resource';
 
 export class Database extends BaseDatabase {
+  private client: PrismaClient;
+
   public constructor(public readonly prisma: PrismaClient) {
     super(prisma);
-    Resource.setClient(prisma);
+    this.client = prisma;
   }
 
   public resources(): Array<Resource> {
-    const dmmf = (Resource.prismaClient as any)._dmmf as DMMFClass;
+    const dmmf = (this.client as any)._dmmf as DMMFClass;
     const { modelMap } = dmmf;
 
     if (!modelMap) return [];
 
-    return Object.values(modelMap).reduce((memo: Resource[], model: DMMF.Model) => {
-      const resource = new Resource(model);
-      memo.push(resource);
-
-      return memo;
-    }, []);
+    return Object.values(modelMap).map((model: DMMF.Model) => {
+      const resource = new Resource({ model, client: this.client });
+      return resource;
+    });
   }
 
   public static isAdapterFor(prisma: PrismaClient): boolean {

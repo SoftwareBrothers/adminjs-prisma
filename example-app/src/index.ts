@@ -10,7 +10,6 @@ const PORT = process.env.port || 3000;
 
 const prisma = new PrismaClient();
 
-Resource.setClient(prisma);
 AdminJS.registerAdapter({ Database, Resource });
 
 const run = async () => {
@@ -19,9 +18,8 @@ const run = async () => {
   const dmmf = ((prisma as any)._dmmf as DMMFClass);
 
   const admin = new AdminJS({
-    // databases: [prisma],
     resources: [{
-      resource: dmmf.modelMap.Post,
+      resource: { model: dmmf.modelMap.Post, client: prisma },
       options: {
         properties: {
           someJson: { type: 'mixed', isArray: true },
@@ -32,10 +30,10 @@ const run = async () => {
         },
       },
     }, {
-      resource: dmmf.modelMap.Profile,
+      resource: { model: dmmf.modelMap.Profile, client: prisma },
       options: {},
     }, {
-      resource: dmmf.modelMap.User,
+      resource: { model: dmmf.modelMap.User, client: prisma },
       options: {},
     }],
   });

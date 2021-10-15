@@ -11,7 +11,7 @@ import { ModelManager, Enums } from './types';
 import { convertFilter, convertParam } from './utils/converters';
 
 export class Resource extends BaseResource {
-  public static prismaClient: PrismaClient;
+  private client: PrismaClient;
 
   private model: DMMF.Model;
 
@@ -21,17 +21,15 @@ export class Resource extends BaseResource {
 
   private propertiesObject: Record<string, any>;
 
-  constructor(model: DMMF.Model) {
-    super(model);
+  constructor(args: { model: DMMF.Model, client: PrismaClient }) {
+    super(args);
 
+    const { model, client } = args;
     this.model = model;
-    this.enums = (Resource.prismaClient as any)._dmmf.enumMap;
-    this.manager = Resource.prismaClient[lowerCase(model.name)];
+    this.client = client;
+    this.enums = (this.client as any)._dmmf.enumMap;
+    this.manager = this.client[lowerCase(model.name)];
     this.propertiesObject = this.prepareProperties();
-  }
-
-  public static setClient(prisma: PrismaClient) {
-    Resource.prismaClient = prisma;
   }
 
   public databaseName(): string {
@@ -39,7 +37,7 @@ export class Resource extends BaseResource {
   }
 
   public databaseType(): string {
-    return (Resource.prismaClient as any)._engineConfig.activeProvider ?? 'database';
+    return (this.client as any)._engineConfig.activeProvider ?? 'database';
   }
 
   public id(): string {
@@ -143,8 +141,9 @@ export class Resource extends BaseResource {
     });
   }
 
-  public static isAdapterFor(prismaModel: DMMF.Model): boolean {
-    return !!Resource.prismaClient?.[lowerCase(prismaModel?.name ?? '')];
+  public static isAdapterFor(args: { model: DMMF.Model, client: PrismaClient }): boolean {
+    const { model, client } = args;
+    return !!model?.name && !!model?.fields.length && !!client?.[lowerCase(model.name)];
   }
 
   private prepareProperties(): { [propertyPath: string]: Property } {
