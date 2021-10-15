@@ -27,6 +27,14 @@ export class Property extends BaseProperty {
     return !!this.column.isId;
   }
 
+  public name(): string {
+    return this.column.name;
+  }
+
+  public isRequired(): boolean {
+    return this.column.isRequired;
+  }
+
   public isSortable(): boolean {
     return this.type() !== 'reference';
   }

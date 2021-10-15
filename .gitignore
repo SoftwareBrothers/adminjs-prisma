@@ -160,4 +160,4 @@ types
 build
 lib
 .adminjs
-/prisma
+/spec/prisma/migrations

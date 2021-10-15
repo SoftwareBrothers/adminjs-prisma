@@ -16,7 +16,7 @@
     "clean": "rm -fR lib",
     "build": "tsc",
     "dev": "yarn clean && tsc -w",
-    "test": "dotenv -e .env -- jest --config ./jest.json --runInBand --forceExit --detectOpenHandles --verbose --silent",
+    "test": "dotenv -e .env -- jest --config ./jest.json --runInBand --forceExit --detectOpenHandles --verbose",
     "ts-node": "ts-node",
     "lint": "eslint './src/**/*.{ts,js}' './spec/**/*.{ts,js}' './example-app/**/*.{ts,js}' --ignore-pattern 'build' --ignore-pattern 'yarn.lock'",
     "check:all": "yarn lint && yarn test && yarn build",
@@ -37,10 +37,14 @@
     "@prisma/client": "^3.2.1",
     "adminjs": "^5.0.0"
   },
+  "prisma": {
+    "schema": "spec/prisma/schema.prisma"
+  },
   "optionalDependencies": {},
   "devDependencies": {
     "@commitlint/cli": "^8.3.5",
     "@commitlint/config-conventional": "^8.3.4",
+    "@prisma/client": "^3.2.1",
     "@semantic-release/git": "^9.0.0",
     "@types/jest": "^27.0.2",
     "@types/node": "12.0.10",
@@ -64,8 +68,5 @@
     "ts-node": "^8.4.1",
     "tsconfig-paths": "^3.9.0",
     "typescript": "^4.0.3"
-  },
-  "dependencies": {
-    "@prisma/client": "^3.2.1"
   }
 }

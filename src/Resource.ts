@@ -50,6 +50,10 @@ export class Resource extends BaseResource {
     return [...Object.values(this.propertiesObject)];
   }
 
+  public property(path: string): Property | null {
+    return this.propertiesObject[path] ?? null;
+  }
+
   public build(params: Record<string, any>): BaseRecord {
     return new BaseRecord(flat.unflatten(params), this);
   }
@@ -107,9 +111,9 @@ export class Resource extends BaseResource {
   public async create(params: Record<string, any>): Promise<Record<string, any>> {
     const preparedParams = this.prepareParams(params);
 
-    await this.manager.create({ data: preparedParams });
+    const result = await this.manager.create({ data: preparedParams });
 
-    return this.prepareReturnValues(preparedParams);
+    return this.prepareReturnValues(result);
   }
 
   public async update(pk: string | number, params: Record<string, any> = {}): Promise<Record<string, any>> {
@@ -118,14 +122,14 @@ export class Resource extends BaseResource {
 
     const preparedParams = this.prepareParams(params);
 
-    await this.manager.update({
+    const result = await this.manager.update({
       where: {
         [idProperty.path()]: convertParam(idProperty, this.model.fields, pk),
       },
       data: preparedParams,
     });
 
-    return this.prepareReturnValues(preparedParams);
+    return this.prepareReturnValues(result);
   }
 
   public async delete(id: string | number): Promise<void> {
@@ -146,12 +150,12 @@ export class Resource extends BaseResource {
   private prepareProperties(): { [propertyPath: string]: Property } {
     const { fields = [] } = this.model;
 
-    return fields.reduce((memo, field, index) => {
+    return fields.reduce((memo, field) => {
       if (field.isReadOnly || (field.relationName && !field.relationFromFields?.length)) {
         return memo;
       }
 
-      const property = new Property(field, index, this.enums);
+      const property = new Property(field, Object.keys(memo).length, this.enums);
       memo[property.path()] = property;
 
       return memo;
