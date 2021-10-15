@@ -3,7 +3,7 @@
     "baseUrl": ".",
     "outDir": "./build",
     "target": "es6",
-    "lib": ["ES2020"],
+    "lib": ["esnext"],
     "esModuleInterop": true,
     "jsx": "react",
     "strictNullChecks": true,
@@ -15,6 +15,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
+    "strict": true,
     "sourceMap": true,
     "paths": {
       "react": ["node_modules/@types/react"],

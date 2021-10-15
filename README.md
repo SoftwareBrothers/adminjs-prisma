@@ -1,147 +1,87 @@
-## adminjs-typeorm
+## adminjs-prisma
 
-This is an official [AdminJS](https://github.com/SoftwareBrothers/adminjs) adapter which integrates [TypeORM](https://typeorm.io/) into AdminJS. (originally forked from [Arteha/admin-bro-typeorm](https://github.com/Arteha/admin-bro-typeorm))
+This is an official [AdminJS](https://github.com/SoftwareBrothers/adminjs) adapter which integrates [Prisma](https://prisma.io/) into AdminJS.
 
-Installation: `yarn add @adminjs/typeorm`
+Installation: `yarn add @adminjs/prisma`
 
 ## Usage
 
 The plugin can be registered using standard `AdminJS.registerAdapter` method.
 
 ```typescript
-import { Database, Resource } from '@adminjs/typeorm'
+import { Database, Resource } from '@adminjs/prisma'
 import AdminJS from 'adminjs'
 
-AdminJS.registerAdapter({ Database, Resource });
-
-// Optional: if you use class-validator you have to inject this to resource.
-import { validate } from 'class-validator'
-Resource.validate = validate
+AdminJS.registerAdapter({ Database, Resource })
 ```
 
 ## Example
 
+Whole code can be found in `example-app` directory in the repository.
+
 ```typescript
-import {
-  BaseEntity,
-  Entity, PrimaryGeneratedColumn, Column,
-  createConnection,
-  ManyToOne,
-  RelationId
-} from 'typeorm'
-import * as express from 'express'
-import { Database, Resource } from '@adminjs/typeorm'
-import { validate } from 'class-validator'
-
+import express from 'express'
 import AdminJS from 'adminjs'
-import * as AdminJSExpress from '@adminjs/express'
+import AdminJSExpress from '@adminjs/express'
+import { Database, Resource } from '@adminjs/prisma'
+import { PrismaClient } from '@prisma/client'
+import { DMMFClass } from '@prisma/client/runtime'
 
-Resource.validate = validate
+const PORT = process.env.port || 3000
+
+const prisma = new PrismaClient()
+
 AdminJS.registerAdapter({ Database, Resource })
 
-@Entity()
-export class Person extends BaseEntity
-{
-  @PrimaryGeneratedColumn()
-  public id: number;
+const run = async () => {
+  const app = express()
 
-  @Column({type: 'varchar'})
-  public firstName: string;
+  const dmmf = ((prisma as any)._dmmf as DMMFClass)
 
-  @Column({type: 'varchar'})
-  public lastName: string;
-
-  @ManyToOne(type => CarDealer, carDealer => carDealer.cars)
-  organization: Organization;
-
-  // in order be able to fetch resources in adminjs - we have to have id available
-  @RelationId((person: Person) => person.organization)
-  organizationId: number;
-
-  // For fancy clickable relation links:
-  public toString(): string
-  {
-    return `${firstName} ${lastName}`;
-  }
-}
-
-( async () =>
-{
-  const connection = await createConnection({/* ... */})
-
-  // Applying connection to model
-  Person.useConnection(connection)
-
-  const adminJs = new AdminJS({
-    // databases: [connection],
-    resources: [
-      { resource: Person, options: { parent: { name: 'foobar' } } }
-      ],
-    rootPath: '/admin',
+  const admin = new AdminJS({
+    resources: [{
+      resource: { model: dmmf.modelMap.Post, client: prisma },
+      options: {
+        properties: {
+          someJson: { type: 'mixed', isArray: true },
+          'someJson.number': { type: 'number' },
+          'someJson.string': { type: 'string' },
+          'someJson.boolean': { type: 'boolean' },
+          'someJson.date': { type: 'datetime' },
+        },
+      },
+    }, {
+      resource: { model: dmmf.modelMap.Profile, client: prisma },
+      options: {},
+    }, {
+      resource: { model: dmmf.modelMap.User, client: prisma },
+      options: {},
+    }],
   })
 
-  const app = express()
-  const router = AdminJSExpress.buildRouter(adminJs)
-  app.use(adminJs.options.rootPath, router)
-  app.listen(3000)
-})()
+  const router = AdminJSExpress.buildRouter(admin)
+
+  app.use(admin.options.rootPath, router)
+
+  app.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log(`Example app listening at http://localhost:${PORT}`)
+  })
+}
+
+run()
+  .finally(async () => {
+    await prisma.$disconnect()
+  })
 ```
 
-## ManyToOne
+## ManyToOne / ManyToMany
 
-Admin supports ManyToOne relationship but you also have to define @RealationId as stated in the example above.
+These relationships are currently not supported by default. You can manage them using custom actions and components.
 
-## Contribution
+## Pull request
 
-### Running the example app
-
-If you want to set this up locally this is the suggested process:
-
-1. fork the repo
-2. Install dependencies
-
-```
-yarn install
-```
-
-3. register this package as a (linked package)[https://classic.yarnpkg.com/en/docs/cli/link/]
-
-```
-yarn link
-```
-
-4. Setup example app
-
-Install all dependencies and use previously linked version of `@adminjs/typeorm`.
-
-```
-cd example-app
-yarn install
-yarn link @adminjs/typeorm
-```
-
-Optionally you might want to link your local version of `adminjs` package
-
-5. Make sure you have all the envs set (which are defined in `example-app/ormconfig.js`)
-
-6. Build the package in watch mode
-
-(in the root folder)
-
-```
-yarn dev
-```
-
-6. run the app in the dev mode
-
-```
-cd example-app
-yarn dev
-```
-
-### Pull request
-
-Before you make a PR make sure all tests pass and your code wont causes linter errors.
+Before you make a PR make sure all tests pass and your code won't cause linter errors.
 You can do this by running:
 
 ```
@@ -149,4 +89,4 @@ yarn lint
 yarn test
 ```
 
-or with proper envs: `POSTGRES_USER=yourtestuser POSTGRES_DATABASE="database_test" yarn test`
+Make sure you have an `.env` file with `DATABASE_URL` specified.

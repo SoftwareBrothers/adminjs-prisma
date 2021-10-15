@@ -49,9 +49,6 @@ const run = async () => {
 };
 
 run()
-  .then(() => {
-    prisma.$disconnect();
-  })
-  .catch(() => {
-    prisma.$disconnect();
-  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
