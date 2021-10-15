@@ -28,7 +28,7 @@ jobs:
     needs: setup
     env:
       NODE_ENV: test
-      DATABASE_URL: "postgresql://postgres@postgres:5432/prisma_example_test?schema=public"
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/prisma_example_test?schema=public"
     services:
       postgres:
         image: postgres:10.8
