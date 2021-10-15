@@ -1,5 +1,6 @@
 {
   "branches": [
+    "main",
     { "name": "beta", "channel": "beta", "prerelease": true }
   ],
   "plugins": [
@@ -11,7 +12,7 @@
     [
       "semantic-release-slack-bot",
       {
-        "notifyOnSuccess": true,
+        "notifyOnSuccess": false,
         "notifyOnFail": false
       }
     ]
