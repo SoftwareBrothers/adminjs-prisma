@@ -2,7 +2,11 @@
 
 This is an official [AdminJS](https://github.com/SoftwareBrothers/adminjs) adapter which integrates [Prisma](https://prisma.io/) into AdminJS.
 
-Installation: `yarn add @adminjs/prisma`
+### Installation
+
+- yarn: `yarn add @adminjs/prisma`
+
+- npm: `npm install @adminjs/prisma`
 
 ## Usage
 
@@ -57,7 +61,6 @@ const run = async () => {
   app.use(admin.options.rootPath, router)
 
   app.listen(PORT, () => {
-    // eslint-disable-next-line no-console
     console.log(`Example app listening at http://localhost:${PORT}`)
   })
 }
