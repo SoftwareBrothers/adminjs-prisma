@@ -36,20 +36,13 @@ AdminJS.registerAdapter({ Database, Resource })
 const run = async () => {
   const app = express()
 
+  // `_dmmf` contains necessary Model metadata. `PrismaClient` type doesn't have it included
   const dmmf = ((prisma as any)._dmmf as DMMFClass)
 
   const admin = new AdminJS({
     resources: [{
       resource: { model: dmmf.modelMap.Post, client: prisma },
-      options: {
-        properties: {
-          someJson: { type: 'mixed', isArray: true },
-          'someJson.number': { type: 'number' },
-          'someJson.string': { type: 'string' },
-          'someJson.boolean': { type: 'boolean' },
-          'someJson.date': { type: 'datetime' },
-        },
-      },
+      options: {},
     }, {
       resource: { model: dmmf.modelMap.Profile, client: prisma },
       options: {},
