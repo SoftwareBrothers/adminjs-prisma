@@ -12,7 +12,7 @@
     [
       "semantic-release-slack-bot",
       {
-        "notifyOnSuccess": false,
+        "notifyOnSuccess": true,
         "notifyOnFail": false
       }
     ]
