@@ -25,7 +25,7 @@ describe('Database', () => {
 
   describe('#resources', () => {
     it('returns all entities', async () => {
-      expect(new Database(prisma).resources()).toHaveLength(3);
+      expect(new Database(prisma).resources()).toHaveLength(4);
     });
   });
 });

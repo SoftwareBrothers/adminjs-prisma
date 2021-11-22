@@ -106,6 +106,44 @@ describe('Resource', () => {
     });
   });
 
+  describe('#find', () => {
+    let record: BaseRecord[];
+
+    it('finds by record name', async () => {
+      const params = await resource.create(data);
+      await resource.create({
+        name: 'Another one',
+        email: 'another@email.com',
+      });
+
+      const filter = new Filter(undefined, resource);
+      filter.filters = {
+        name: { path: 'name', value: params.name, property: resource.property('name') as BaseProperty },
+      }
+      record = await resource.find(filter);
+
+      expect(record[0] && record[0].get('name')).toEqual(data.name);
+      expect(record[0] && record[0].get('email')).toEqual(data.email);
+      expect(record.length).toEqual(1);
+    });
+
+    it('finds by record uuid column', async () => {
+      const uuidResource = new Resource({ model: dmmf.modelMap.UuidExample, client: prisma });
+      const params = await uuidResource.create({ label: 'test' });
+      await uuidResource.create({ label: 'another test' });
+
+      const filter = new Filter(undefined, uuidResource);
+      filter.filters = {
+        id: { path: 'id', value: params.id, property: uuidResource.property('id') as BaseProperty },
+      }
+      record = await uuidResource.find(filter);
+
+      expect(record[0] && record[0].get('id')).toEqual(params.id);
+      expect(record[0] && record[0].get('label')).toEqual('test');
+      expect(record.length).toEqual(1);
+    });
+  });
+
   describe('references', () => {
     let profile;
     let user;
