@@ -39,3 +39,8 @@ model User {
   posts   Post[]
   profile Profile?
 }
+
+model UuidExample {
+  id      String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  label   String
+}
