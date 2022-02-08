@@ -56,7 +56,7 @@ export const convertFilter = (modelFields: DMMF.Model['fields'], filterObject?: 
         filter.value,
       );
     } else {
-      where[name] = { contains: filter.value.toString(), mode: 'insensitive' };
+      where[name] = { contains: filter.value.toString() };
     }
 
     return where;
