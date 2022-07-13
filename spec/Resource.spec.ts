@@ -16,7 +16,7 @@ describe('Resource', () => {
 
   beforeAll(async () => {
     prisma = new PrismaClient();
-    dmmf = ((prisma as any)._dmmf as DMMFClass);
+    dmmf = ((prisma as any)._baseDmmf as DMMFClass);
   });
 
   beforeEach(async () => {

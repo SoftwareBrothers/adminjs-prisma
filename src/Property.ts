@@ -68,7 +68,7 @@ export class Property extends BaseProperty {
 
     if (!enumSchema) return null;
 
-    return enumSchema.values.map((value) => String(value)) ?? [];
+    return enumSchema.values.map((value) => String(value.name)) ?? [];
   }
 
   public position(): number {

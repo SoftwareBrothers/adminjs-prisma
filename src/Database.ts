@@ -14,7 +14,7 @@ export class Database extends BaseDatabase {
   }
 
   public resources(): Array<Resource> {
-    const dmmf = (this.client as any)._dmmf as DMMFClass;
+    const dmmf = (this.client as any)._baseDmmf as DMMFClass;
     const { modelMap } = dmmf;
 
     if (!modelMap) return [];
@@ -26,7 +26,7 @@ export class Database extends BaseDatabase {
   }
 
   public static isAdapterFor(prisma: PrismaClient): boolean {
-    const dmmf = ((prisma as any)._dmmf as DMMFClass);
+    const dmmf = ((prisma as any)._baseDmmf as DMMFClass);
 
     return !!dmmf?.modelMap && !!Object.values(dmmf?.modelMap ?? {}).length;
   }
