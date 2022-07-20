@@ -15,7 +15,7 @@ AdminJS.registerAdapter({ Database, Resource });
 const run = async () => {
   const app = express();
 
-  const dmmf = ((prisma as any)._dmmf as DMMFClass);
+  const dmmf = ((prisma as any)._baseDmmf as DMMFClass);
 
   const admin = new AdminJS({
     resources: [{

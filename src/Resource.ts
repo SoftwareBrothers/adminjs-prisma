@@ -27,7 +27,7 @@ export class Resource extends BaseResource {
     const { model, client } = args;
     this.model = model;
     this.client = client;
-    this.enums = (this.client as any)._dmmf.enumMap;
+    this.enums = (this.client as any)._baseDmmf.datamodelEnumMap;
     this.manager = this.client[lowerCase(model.name)];
     this.propertiesObject = this.prepareProperties();
   }

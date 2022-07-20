@@ -40,8 +40,8 @@ AdminJS.registerAdapter({ Database, Resource })
 const run = async () => {
   const app = express()
 
-  // `_dmmf` contains necessary Model metadata. `PrismaClient` type doesn't have it included
-  const dmmf = ((prisma as any)._dmmf as DMMFClass)
+  // `_baseDmmf` contains necessary Model metadata. `PrismaClient` type doesn't have it included
+  const dmmf = ((prisma as any)._baseDmmf as DMMFClass)
 
   const admin = new AdminJS({
     resources: [{
