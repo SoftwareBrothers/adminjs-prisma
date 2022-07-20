@@ -34,7 +34,7 @@
   "author": "Rafał Dzięgielewski <rafal.dzieg@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
-    "@prisma/client": "^3.2.1",
+    "@prisma/client": "^4.0.0",
     "adminjs": ">=6.0.0"
   },
   "prisma": {
