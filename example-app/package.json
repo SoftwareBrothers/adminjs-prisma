@@ -13,15 +13,15 @@
     "concurrently": "^5.2.0",
     "dotenv-cli": "^4.0.0",
     "nodemon": "^2.0.4",
-    "prisma": "^3.2.1",
+    "prisma": "^4.5.0",
     "ts-node": "3.3.0",
     "typescript": "^4.4.4"
   },
   "dependencies": {
     "@adminjs/express": "^4.0.0",
     "@adminjs/prisma": "^1.0.0",
-    "@prisma/client": "^3.2.1",
-    "adminjs": "^5.0.0",
+    "@prisma/client": "^4.5.0",
+    "adminjs": "^6.6.1",
     "express": "^4.17.1",
     "express-formidable": "^1.2.0",
     "express-session": "^1.17.1",

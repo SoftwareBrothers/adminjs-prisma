@@ -15,18 +15,21 @@ export class Resource extends BaseResource {
 
   private model: DMMF.Model;
 
+  private key?: string;
+
   private enums: Enums;
 
   private manager: ModelManager;
 
   private propertiesObject: Record<string, any>;
 
-  constructor(args: { model: DMMF.Model, client: PrismaClient }) {
+  constructor(args: { model: DMMF.Model, client: PrismaClient, key?: string }) {
     super(args);
 
-    const { model, client } = args;
+    const { model, client, key } = args;
     this.model = model;
     this.client = client;
+    this.key = key;
     this.enums = (this.client as any)._baseDmmf.datamodelEnumMap;
     this.manager = this.client[lowerCase(model.name)];
     this.propertiesObject = this.prepareProperties();
@@ -154,7 +157,7 @@ export class Resource extends BaseResource {
         return memo;
       }
 
-      const property = new Property(field, Object.keys(memo).length, this.enums);
+      const property = new Property(field, Object.keys(memo).length, this.enums, this.key ? field.name === this.key : !!field.isId);
       memo[property.path()] = property;
 
       return memo;

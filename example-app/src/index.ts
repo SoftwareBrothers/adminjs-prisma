@@ -33,7 +33,7 @@ const run = async () => {
       resource: { model: dmmf.modelMap.Profile, client: prisma },
       options: {},
     }, {
-      resource: { model: dmmf.modelMap.User, client: prisma },
+      resource: { model: dmmf.modelMap.User, client: prisma, key: 'userId' },
       options: {},
     }],
   });

@@ -11,9 +11,9 @@ export class Property extends BaseProperty {
 
   private columnPosition: number;
 
-  constructor(column: DMMF.Field, columnPosition = 0, enums: Enums) {
+  constructor(column: DMMF.Field, columnPosition = 0, enums: Enums, isId: boolean) {
     const path = column.name;
-    super({ path });
+    super({ path, isId });
     this.column = column;
     this.enums = enums;
     this.columnPosition = columnPosition;
@@ -21,10 +21,6 @@ export class Property extends BaseProperty {
 
   public isEditable(): boolean {
     return !this.isId() && this.column.name !== 'createdAt' && this.column.name !== 'updatedAt';
-  }
-
-  public isId(): boolean {
-    return !!this.column.isId;
   }
 
   public name(): string {
