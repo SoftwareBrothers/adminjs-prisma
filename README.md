@@ -82,10 +82,15 @@ You can do this by running:
 
 ```
 yarn lint
-yarn test
 ```
 
-Make sure you have an `.env` file with `DATABASE_URL` specified.
+### To run test do next:
+```
+1. cp .env.example .env
+2. docker-compose up -d
+3. yarn prisma-migrate
+4. yarn test
+```
 
 ## License
 

@@ -1,6 +1,6 @@
 {
   "name": "@adminjs/prisma",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Prisma adapter for AdminJS",
   "keywords": [
     "prisma",
@@ -20,7 +20,8 @@
     "ts-node": "ts-node",
     "lint": "eslint './src/**/*.{ts,js}' './spec/**/*.{ts,js}' './example-app/**/*.{ts,js}' --ignore-pattern 'build' --ignore-pattern 'yarn.lock'",
     "check:all": "yarn lint && yarn test && yarn build",
-    "release": "semantic-release"
+    "release": "semantic-release",
+    "prisma-migrate": "prisma migrate dev --name init"
   },
   "repository": {
     "type": "git",

@@ -169,6 +169,9 @@ export class Resource extends BaseResource {
       const key = property.path();
 
       // eslint-disable-next-line no-continue
+      if (key === 'id') continue;
+
+      // eslint-disable-next-line no-continue
       if (param === undefined) continue;
 
       const type = property.type();
