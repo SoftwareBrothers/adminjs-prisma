@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import { DMMFClass } from '@prisma/client/runtime';
 
-import { Property } from '../src/Property';
-import { Resource } from '../src/Resource';
+import { Property } from '../src/Property.js';
+import { Resource } from '../src/Resource.js';
 
 const findProperty = (
   properties: Array<Property>,

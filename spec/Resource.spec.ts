@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { DMMFClass } from '@prisma/client/runtime';
 import { BaseProperty, BaseRecord, Filter } from 'adminjs';
 
-import { Resource } from '../src/Resource';
+import { Resource } from '../src/Resource.js';
 
 describe('Resource', () => {
   let resource: Resource;

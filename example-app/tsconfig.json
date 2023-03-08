@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "./build",
-    "target": "es6",
+    "target": "esnext",
     "lib": ["esnext"],
     "esModuleInterop": true,
     "jsx": "react",
@@ -10,17 +10,13 @@
     "strictFunctionTypes": true,
     "strictBindCallApply": true,
     "noImplicitThis": true,
-    "moduleResolution": "node",
-    "module": "commonjs",
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
     "strict": true,
     "sourceMap": true,
-    "paths": {
-      "react": ["node_modules/@types/react"],
-      "adminjs": ["node_modules/adminjs"]
-    },
     "skipLibCheck": true
   },
   "include": [

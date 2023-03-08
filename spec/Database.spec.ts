@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
-import { Database } from '../src/Database';
+import { Database } from '../src/Database.js';
 
 describe('Database', () => {
   let prisma: PrismaClient;

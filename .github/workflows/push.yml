@@ -10,8 +10,8 @@ jobs:
       - name: Setup
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
-      - uses: actions/cache@v1
+          node-version: '18'
+      - uses: actions/cache@v2
         id: yarn-cache
         with:
           path: node_modules
@@ -46,8 +46,8 @@ jobs:
       - name: Setup
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
-      - uses: actions/cache@v1
+          node-version: '18'
+      - uses: actions/cache@v2
         id: yarn-cache
         with:
           path: node_modules
@@ -74,8 +74,8 @@ jobs:
       - name: Setup
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
-      - uses: actions/cache@v1
+          node-version: '18'
+      - uses: actions/cache@v2
         id: yarn-cache
         with:
           path: node_modules
