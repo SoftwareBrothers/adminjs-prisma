@@ -22,7 +22,7 @@
     "clean": "rm -fR lib",
     "build": "tsc",
     "dev": "yarn clean && tsc -w",
-    "test": "dotenv -e .env -- jest --config ./jest.json --runInBand --forceExit --detectOpenHandles --verbose",
+    "test": "NODE_OPTIONS=--experimental-vm-modules dotenv -e .env -- jest --config ./jest.json --runInBand --detectOpenHandles",
     "ts-node": "ts-node",
     "lint": "eslint './src/**/*.{ts,js}' './spec/**/*.{ts,js}' './example-app/**/*.{ts,js}' --ignore-pattern 'build' --ignore-pattern 'yarn.lock'",
     "check:all": "yarn lint && yarn test && yarn build",
@@ -50,6 +50,7 @@
   "devDependencies": {
     "@commitlint/cli": "^17.4.4",
     "@commitlint/config-conventional": "^17.4.4",
+    "@jest/globals": "^29.5.0",
     "@prisma/client": "^4.11.0",
     "@semantic-release/git": "^10.0.1",
     "@types/jest": "^29.4.0",

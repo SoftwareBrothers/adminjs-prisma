@@ -41,5 +41,11 @@ module.exports = {
         'react/jsx-props-no-spreading': 'off',
       },
     },
+    {
+      files: ['*.spec.ts'],
+      rules: {
+        'import/no-extraneous-dependencies': 'off',
+      },
+    },
   ],
 };

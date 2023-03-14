@@ -1,8 +1,11 @@
 import { PrismaClient } from '@prisma/client';
 import { DMMFClass } from '@prisma/client/runtime';
 import { BaseProperty, BaseRecord, Filter } from 'adminjs';
+import { jest } from '@jest/globals';
 
 import { Resource } from '../src/Resource.js';
+
+jest.useFakeTimers();
 
 describe('Resource', () => {
   let resource: Resource;

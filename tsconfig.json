@@ -17,7 +17,8 @@
     "outDir": "./lib",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "allowJs": true
   },
   "include": [
     "./src/**/*.ts"

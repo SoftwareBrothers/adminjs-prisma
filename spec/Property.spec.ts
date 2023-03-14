@@ -1,8 +1,11 @@
 import { PrismaClient } from '@prisma/client';
 import { DMMFClass } from '@prisma/client/runtime';
+import { jest } from '@jest/globals';
 
 import { Property } from '../src/Property.js';
 import { Resource } from '../src/Resource.js';
+
+jest.useFakeTimers();
 
 const findProperty = (
   properties: Array<Property>,
