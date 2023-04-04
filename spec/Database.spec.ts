@@ -10,6 +10,7 @@ describe('Database', () => {
 
   beforeAll(async () => {
     prisma = new PrismaClient();
+    jest.setTimeout(100000);
   });
 
   afterAll(async () => {

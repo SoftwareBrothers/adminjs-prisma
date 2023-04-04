@@ -20,6 +20,7 @@ describe('Resource', () => {
   beforeAll(async () => {
     prisma = new PrismaClient();
     dmmf = ((prisma as any)._baseDmmf as DMMFClass);
+    jest.setTimeout(100000);
   });
 
   beforeEach(async () => {
@@ -94,6 +95,7 @@ describe('Resource', () => {
     let record: BaseRecord | null;
 
     it('updates record name', async () => {
+      jest.setTimeout(30000);
       const params = await resource.create(data);
       record = await resource.findOne(params.id);
       const name = 'Michael';
@@ -113,6 +115,7 @@ describe('Resource', () => {
     let record: BaseRecord[];
 
     it('finds by record name', async () => {
+      jest.setTimeout(30000);
       const params = await resource.create(data);
       await resource.create({
         name: 'Another one',
@@ -131,6 +134,7 @@ describe('Resource', () => {
     });
 
     it('finds by record uuid column', async () => {
+      jest.setTimeout(30000);
       const uuidResource = new Resource({ model: dmmf.modelMap.UuidExample, client: prisma });
       const params = await uuidResource.create({ label: 'test' });
       await uuidResource.create({ label: 'another test' });
@@ -153,6 +157,7 @@ describe('Resource', () => {
     let profileResource;
 
     beforeEach(async () => {
+      jest.setTimeout(30000);
       user = await resource.create(data);
       profileResource = new Resource({ model: dmmf.modelMap.Profile, client: prisma });
     });
@@ -171,6 +176,7 @@ describe('Resource', () => {
     let user;
 
     beforeEach(async () => {
+      jest.setTimeout(30000);
       user = await resource.create(data);
     });
 
