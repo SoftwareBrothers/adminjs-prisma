@@ -40,7 +40,7 @@
   "author": "Rafał Dzięgielewski <rafal.dzieg@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
-    "@prisma/client": "^4.11.0",
+    "@prisma/client": "^4.8.1",
     "adminjs": "^6.8.7"
   },
   "prisma": {
@@ -51,13 +51,13 @@
     "@commitlint/cli": "^17.4.4",
     "@commitlint/config-conventional": "^17.4.4",
     "@jest/globals": "^29.5.0",
-    "@prisma/client": "^4.11.0",
+    "@prisma/client": "4.8.1",
     "@semantic-release/git": "^10.0.1",
     "@types/jest": "^29.4.0",
     "@types/node": "^18",
     "@typescript-eslint/eslint-plugin": "^5.54.1",
     "@typescript-eslint/parser": "^5.54.1",
-    "adminjs": "^7.0.0-beta-v7.3",
+    "adminjs": "^7.0.0-beta-v7.5",
     "dotenv-cli": "^7.0.0",
     "eslint": "^8.35.0",
     "eslint-config-airbnb": "^19.0.4",
@@ -68,7 +68,7 @@
     "husky": "^4.2.5",
     "jest": "^29.5.0",
     "pg": "^8.10.0",
-    "prisma": "^4.11.0",
+    "prisma": "4.8.1",
     "semantic-release": "^20.1.1",
     "semantic-release-slack-bot": "^4.0.0",
     "ts-jest": "^29.0.5",
