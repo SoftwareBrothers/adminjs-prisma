@@ -22,7 +22,6 @@ describe('Property', () => {
     const dmmf = ((prisma as any)._baseDmmf as DMMFClass);
     resource = new Resource({ model: dmmf.modelMap.Post, client: prisma });
     properties = resource.properties();
-    jest.setTimeout(100000);
   });
 
   afterAll(async () => {

@@ -20,7 +20,6 @@ describe('Resource', () => {
   beforeAll(async () => {
     prisma = new PrismaClient();
     dmmf = ((prisma as any)._baseDmmf as DMMFClass);
-    jest.setTimeout(100000);
   });
 
   beforeEach(async () => {
@@ -95,7 +94,6 @@ describe('Resource', () => {
     let record: BaseRecord | null;
 
     it('updates record name', async () => {
-      jest.setTimeout(30000);
       const params = await resource.create(data);
       record = await resource.findOne(params.id);
       const name = 'Michael';
@@ -108,14 +106,13 @@ describe('Resource', () => {
       );
 
       expect(recordInDb && recordInDb.get('name')).toEqual(name);
-    });
+    }, 30000);
   });
 
   describe('#find', () => {
     let record: BaseRecord[];
 
     it('finds by record name', async () => {
-      jest.setTimeout(30000);
       const params = await resource.create(data);
       await resource.create({
         name: 'Another one',
@@ -131,10 +128,9 @@ describe('Resource', () => {
       expect(record[0] && record[0].get('name')).toEqual(data.name);
       expect(record[0] && record[0].get('email')).toEqual(data.email);
       expect(record.length).toEqual(1);
-    });
+    }, 30000);
 
     it('finds by record uuid column', async () => {
-      jest.setTimeout(30000);
       const uuidResource = new Resource({ model: dmmf.modelMap.UuidExample, client: prisma });
       const params = await uuidResource.create({ label: 'test' });
       await uuidResource.create({ label: 'another test' });
@@ -148,7 +144,7 @@ describe('Resource', () => {
       expect(record[0] && record[0].get('id')).toEqual(params.id);
       expect(record[0] && record[0].get('label')).toEqual('test');
       expect(record.length).toEqual(1);
-    });
+    }, 30000);
   });
 
   describe('references', () => {
@@ -157,7 +153,6 @@ describe('Resource', () => {
     let profileResource;
 
     beforeEach(async () => {
-      jest.setTimeout(30000);
       user = await resource.create(data);
       profileResource = new Resource({ model: dmmf.modelMap.Profile, client: prisma });
     });
@@ -169,20 +164,19 @@ describe('Resource', () => {
       });
 
       expect(profile.user).toEqual(user.id);
-    });
+    }, 30000);
   });
 
   describe('#delete', () => {
     let user;
 
     beforeEach(async () => {
-      jest.setTimeout(30000);
       user = await resource.create(data);
     });
 
     it('deletes the resource', async () => {
       await resource.delete(user.id);
       expect(await resource.count({} as Filter)).toEqual(0);
-    });
+    }, 30000);
   });
 });
