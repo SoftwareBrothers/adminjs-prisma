@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+  prisma_test_app:
+    container_name: prisma_test_app
+    image: postgres
+    environment:
+      - POSTGRES_DB=adminjs
+      - POSTGRES_USER=adminjs
+      - POSTGRES_PASSWORD=adminjs
+    ports:
+      - "5432:5432"
+    volumes:
+      - prisma_test_app:/var/lib/postgresql/data
+
+volumes:
+  prisma_test_app:
