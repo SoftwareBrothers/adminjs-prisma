@@ -8,6 +8,7 @@ describe('Resource', () => {
   let resource: Resource;
   let prisma: PrismaClient;
   let dmmf: DMMFClass;
+  let provider: string;
 
   const data = {
     name: 'Someone',
@@ -17,6 +18,7 @@ describe('Resource', () => {
   beforeAll(async () => {
     prisma = new PrismaClient();
     dmmf = ((prisma as any)._baseDmmf as DMMFClass);
+    provider = ((prisma as any)._engineConfig.activeProvider as string);
   });
 
   beforeEach(async () => {
@@ -43,7 +45,7 @@ describe('Resource', () => {
 
   describe('#databaseType', () => {
     it('returns database dialect', () => {
-      expect(resource.databaseType()).toEqual('postgresql');
+      expect(resource.databaseType()).toEqual(provider);
     });
   });
 
