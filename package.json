@@ -20,7 +20,12 @@
     "ts-node": "ts-node",
     "lint": "eslint './src/**/*.{ts,js}' './spec/**/*.{ts,js}' './example-app/**/*.{ts,js}' --ignore-pattern 'build' --ignore-pattern 'yarn.lock'",
     "check:all": "yarn lint && yarn test && yarn build",
-    "release": "semantic-release"
+    "release": "semantic-release",
+    "db:setup": "docker-compose up -d",
+    "db:migrate": "prisma migrate dev --name init",
+    "prisma:reset": "rm -rf spec/prisma",
+    "test:setup:mongo": "yarn prisma:reset && cp -r spec/.mongo.prisma spec/prisma && prisma generate",
+    "test:setup:postgresql": "yarn prisma:reset && cp -r spec/.postgres.prisma spec/prisma && yarn db:migrate && prisma generate"
   },
   "repository": {
     "type": "git",

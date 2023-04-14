@@ -1,0 +1,46 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGO_DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Status {
+  ACTIVE
+  REMOVED
+}
+
+model Post {
+  id        String   @id @default(uuid()) @map("_id")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title     String
+  content   String?
+  someJson  Json?    @db.Json
+  status    Status   @default(ACTIVE)
+  published Boolean  @default(false)
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+}
+
+model Profile {
+  id     String  @id @default(uuid()) @map("_id")
+  bio    String?
+  user   User    @relation(fields: [userId], references: [id])
+  userId String  @unique
+}
+
+model User {
+  id      String   @id @default(uuid()) @map("_id")
+  email   String   @unique
+  name    String?
+  posts   Post[]
+  profile Profile?
+}
+
+model UuidExample {
+  id    String @id @default(uuid()) @map("_id")
+  label String
+}
