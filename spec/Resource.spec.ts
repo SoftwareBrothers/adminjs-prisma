@@ -57,13 +57,13 @@ describe('Resource', () => {
 
   describe('#properties', () => {
     it('returns all the properties', () => {
-      expect(resource.properties()).toHaveLength(3);
+      expect(resource.properties()).toHaveLength(4);
     });
 
     it('returns all properties with the correct position', () => {
       expect(
         resource.properties().map((property) => property.position()),
-      ).toEqual([0, 1, 2]);
+      ).toEqual([0, 1, 2, 3]);
     });
   });
 
@@ -97,15 +97,19 @@ describe('Resource', () => {
       record = await resource.findOne(params.id);
       const name = 'Michael';
 
+      jest.useFakeTimers().advanceTimersByTime(10000);
       await resource.update((record && record.id()) as string, {
         ...record?.params,
         name,
       });
+      jest.useRealTimers()
+
       const recordInDb = await resource.findOne(
         (record && record.id()) as string,
       );
 
       expect(recordInDb && recordInDb.get('name')).toEqual(name);
+      expect(record?.get('updatedAt')).not.toEqual(recordInDb?.get('updatedAt'));
     });
   });
 
@@ -122,7 +126,7 @@ describe('Resource', () => {
       const filter = new Filter(undefined, resource);
       filter.filters = {
         name: { path: 'name', value: params.name, property: resource.property('name') as BaseProperty },
-      }
+      };
       record = await resource.find(filter);
 
       expect(record[0] && record[0].get('name')).toEqual(data.name);
@@ -138,7 +142,7 @@ describe('Resource', () => {
       const filter = new Filter(undefined, uuidResource);
       filter.filters = {
         id: { path: 'id', value: params.id, property: uuidResource.property('id') as BaseProperty },
-      }
+      };
       record = await uuidResource.find(filter);
 
       expect(record[0] && record[0].get('id')).toEqual(params.id);

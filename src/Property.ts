@@ -20,7 +20,7 @@ export class Property extends BaseProperty {
   }
 
   public isEditable(): boolean {
-    return !this.isId() && this.column.name !== 'createdAt' && this.column.name !== 'updatedAt';
+    return !this.isId() && this.column.name !== 'createdAt' && !this.column.isUpdatedAt;
   }
 
   public isId(): boolean {

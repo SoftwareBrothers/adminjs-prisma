@@ -33,11 +33,12 @@ model Profile {
 }
 
 model User {
-  id      String   @id @default(uuid()) @map("_id")
-  email   String   @unique
-  name    String?
-  posts   Post[]
-  profile Profile?
+  id        String   @id @default(uuid()) @map("_id")
+  email     String   @unique
+  name      String?
+  posts     Post[]
+  profile   Profile?
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model UuidExample {
