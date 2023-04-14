@@ -169,7 +169,7 @@ export class Resource extends BaseResource {
       const key = property.path();
 
       // eslint-disable-next-line no-continue
-      if (param === undefined) continue;
+      if (param === undefined || property.isId()) continue;
 
       const type = property.type();
       const foreignColumnName = property.foreignColumnName();

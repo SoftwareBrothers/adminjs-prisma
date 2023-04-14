@@ -98,6 +98,7 @@ describe('Resource', () => {
       const name = 'Michael';
 
       await resource.update((record && record.id()) as string, {
+        ...record?.params,
         name,
       });
       const recordInDb = await resource.findOne(
