@@ -1,6 +1,6 @@
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("POSTGRESQL_DATABASE_URL")
 }
 
 generator client {
@@ -33,14 +33,15 @@ model Profile {
 }
 
 model User {
-  id      Int      @id @default(autoincrement())
-  email   String   @unique
-  name    String?
-  posts   Post[]
-  profile Profile?
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  posts     Post[]
+  profile   Profile?
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model UuidExample {
-  id      String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  label   String
+  id    String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  label String
 }
