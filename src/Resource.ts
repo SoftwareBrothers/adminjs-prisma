@@ -5,10 +5,10 @@ import { BaseResource, Filter, BaseRecord, flat } from 'adminjs';
 import { PrismaClient } from '@prisma/client';
 import { DMMF } from '@prisma/client/runtime';
 
-import { Property } from './Property';
-import { lowerCase } from './utils/helpers';
-import { ModelManager, Enums } from './types';
-import { convertFilter, convertParam } from './utils/converters';
+import { Property } from './Property.js';
+import { lowerCase } from './utils/helpers.js';
+import { ModelManager, Enums } from './types.js';
+import { convertFilter, convertParam } from './utils/converters.js';
 
 export class Resource extends BaseResource {
   private client: PrismaClient;

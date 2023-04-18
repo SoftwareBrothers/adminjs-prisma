@@ -1,8 +1,8 @@
 import { DMMF } from '@prisma/client/runtime';
 import { BaseProperty, PropertyType } from 'adminjs';
 
-import { Enums } from './types';
-import { DATA_TYPES } from './utils/data-types';
+import { Enums } from './types.js';
+import { DATA_TYPES } from './utils/data-types.js';
 
 export class Property extends BaseProperty {
   private column: DMMF.Field;
@@ -11,6 +11,7 @@ export class Property extends BaseProperty {
 
   private columnPosition: number;
 
+  // eslint-disable-next-line default-param-last
   constructor(column: DMMF.Field, columnPosition = 0, enums: Enums) {
     const path = column.name;
     super({ path });

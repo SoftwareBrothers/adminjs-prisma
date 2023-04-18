@@ -1,6 +1,9 @@
 import { PrismaClient } from '@prisma/client';
+import { jest } from '@jest/globals';
 
-import { Database } from '../src/Database';
+import { Database } from '../src/Database.js';
+
+jest.useFakeTimers();
 
 describe('Database', () => {
   let prisma: PrismaClient;

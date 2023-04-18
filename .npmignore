@@ -5,3 +5,4 @@ example-app/
 src/
 package-lock\.json
 *.db
+docker-compose.yml

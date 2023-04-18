@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { DMMF, DMMFClass } from '@prisma/client/runtime';
 import { BaseDatabase } from 'adminjs';
 
-import { Resource } from './Resource';
+import { Resource } from './Resource.js';
 
 export class Database extends BaseDatabase {
   private client: PrismaClient;

@@ -2,8 +2,8 @@
 import { DMMF } from '@prisma/client/runtime';
 import { Filter } from 'adminjs';
 
-import { Property } from '../Property';
-import { safeParseJSON, safeParseNumber } from './helpers';
+import { Property } from '../Property.js';
+import { safeParseJSON, safeParseNumber } from './helpers.js';
 
 export const convertParam = (
   property: Property,
