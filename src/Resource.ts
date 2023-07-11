@@ -85,6 +85,7 @@ export class Resource extends BaseResource {
         [idProperty.path()]: convertParam(idProperty, this.model.fields, id),
       },
     });
+    if (!result) return null;
 
     return new BaseRecord(this.prepareReturnValues(result), this);
   }
