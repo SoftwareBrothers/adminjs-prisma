@@ -1,47 +1,40 @@
--- CreateEnum
-CREATE TYPE "Status" AS ENUM ('ACTIVE', 'REMOVED');
+-- CreateTable
+CREATE TABLE `Post` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `title` VARCHAR(255) NOT NULL,
+    `content` VARCHAR(191) NULL,
+    `someJson` JSON NULL,
+    `status` ENUM('ACTIVE', 'REMOVED') NOT NULL DEFAULT 'ACTIVE',
+    `published` BOOLEAN NOT NULL DEFAULT false,
+    `publisherId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE "Post" (
-    "id" SERIAL NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "title" VARCHAR(255) NOT NULL,
-    "content" TEXT,
-    "someJson" JSONB,
-    "status" "Status" NOT NULL DEFAULT E'ACTIVE',
-    "published" BOOLEAN NOT NULL DEFAULT false,
-    "authorId" INTEGER NOT NULL,
+CREATE TABLE `Profile` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `bio` VARCHAR(191) NULL,
+    `publisherId` INTEGER NOT NULL,
 
-    CONSTRAINT "Post_pkey" PRIMARY KEY ("id")
-);
+    UNIQUE INDEX `Profile_publisherId_key`(`publisherId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE "Profile" (
-    "id" SERIAL NOT NULL,
-    "bio" TEXT,
-    "userId" INTEGER NOT NULL,
+CREATE TABLE `Publisher` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `email` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NULL,
 
-    CONSTRAINT "Profile_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "User" (
-    "id" SERIAL NOT NULL,
-    "email" TEXT NOT NULL,
-    "name" TEXT,
-
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
-);
-
--- CreateIndex
-CREATE UNIQUE INDEX "Profile_userId_key" ON "Profile"("userId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+    UNIQUE INDEX `Publisher_email_key`(`email`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE "Post" ADD CONSTRAINT "Post_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Post` ADD CONSTRAINT `Post_publisherId_fkey` FOREIGN KEY (`publisherId`) REFERENCES `Publisher`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Profile" ADD CONSTRAINT "Profile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Profile` ADD CONSTRAINT `Profile_publisherId_fkey` FOREIGN KEY (`publisherId`) REFERENCES `Publisher`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

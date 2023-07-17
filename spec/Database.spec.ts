@@ -17,12 +17,8 @@ describe('Database', () => {
   });
 
   describe('.isAdapterFor', () => {
-    it('returns true when Prisma Client is given', () => {
+    it('returns true when Prisma is properly initialized', () => {
       expect(Database.isAdapterFor(prisma)).toEqual(true);
-    });
-
-    it('returns false for any other data', () => {
-      expect(Database.isAdapterFor({} as any)).toEqual(false);
     });
   });
 

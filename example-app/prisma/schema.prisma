@@ -1,5 +1,5 @@
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -18,21 +18,21 @@ model Post {
   updatedAt DateTime @updatedAt
   title     String   @db.VarChar(255)
   content   String?
-  someJson  Json?    @db.JsonB
+  someJson  Json?    @db.Json
   status    Status   @default(ACTIVE)
   published Boolean  @default(false)
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int
+  publisher    Publisher     @relation(fields: [publisherId], references: [id])
+  publisherId  Int
 }
 
 model Profile {
   id     Int     @id @default(autoincrement())
   bio    String?
-  user   User    @relation(fields: [userId], references: [id])
-  userId Int     @unique
+  publisher   Publisher    @relation(fields: [publisherId], references: [id])
+  publisherId Int     @unique
 }
 
-model User {
+model Publisher {
   id      Int      @id @default(autoincrement())
   email   String   @unique
   name    String?

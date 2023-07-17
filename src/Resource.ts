@@ -3,12 +3,13 @@
 /* eslint-disable no-param-reassign */
 import { BaseResource, Filter, BaseRecord, flat } from 'adminjs';
 import { PrismaClient } from '@prisma/client';
-import { DMMF } from '@prisma/client/runtime';
+import { DMMF } from '@prisma/client/runtime/library.js';
 
 import { Property } from './Property.js';
 import { lowerCase } from './utils/helpers.js';
 import { ModelManager, Enums } from './types.js';
 import { convertFilter, convertParam } from './utils/converters.js';
+import { getEnums } from './utils/get-enums.js';
 
 export class Resource extends BaseResource {
   private client: PrismaClient;
@@ -27,7 +28,7 @@ export class Resource extends BaseResource {
     const { model, client } = args;
     this.model = model;
     this.client = client;
-    this.enums = (this.client as any)._baseDmmf.datamodelEnumMap;
+    this.enums = getEnums();
     this.manager = this.client[lowerCase(model.name)];
     this.propertiesObject = this.prepareProperties();
   }
@@ -37,7 +38,7 @@ export class Resource extends BaseResource {
   }
 
   public databaseType(): string {
-    return (this.client as any)._engineConfig.activeProvider ?? 'database';
+    return (this.client as any)._engineConfig?.activeProvider ?? 'database';
   }
 
   public id(): string {
@@ -144,6 +145,7 @@ export class Resource extends BaseResource {
 
   public static isAdapterFor(args: { model: DMMF.Model, client: PrismaClient }): boolean {
     const { model, client } = args;
+
     return !!model?.name && !!model?.fields.length && !!client?.[lowerCase(model.name)];
   }
 

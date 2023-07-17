@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client';
-import { DMMFClass } from '@prisma/client/runtime';
 import { jest } from '@jest/globals';
 
 import { Property } from '../src/Property.js';
 import { Resource } from '../src/Resource.js';
+import { getModelByName } from '../src/utils/get-model-by-name.js';
 
 jest.useFakeTimers();
 
@@ -19,8 +19,7 @@ describe('Property', () => {
 
   beforeAll(async () => {
     prisma = new PrismaClient();
-    const dmmf = ((prisma as any)._baseDmmf as DMMFClass);
-    resource = new Resource({ model: dmmf.modelMap.Post, client: prisma });
+    resource = new Resource({ model: getModelByName('Post'), client: prisma });
     properties = resource.properties();
   });
 

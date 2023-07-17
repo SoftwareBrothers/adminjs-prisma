@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
-import { PrismaClient } from '@prisma/client';
-import { DMMF, DMMFClass } from '@prisma/client/runtime';
+import { Prisma, PrismaClient } from '@prisma/client';
+import { DMMF } from '@prisma/client/runtime/library.js';
 import { BaseDatabase } from 'adminjs';
 
 import { Resource } from './Resource.js';
@@ -14,20 +14,20 @@ export class Database extends BaseDatabase {
   }
 
   public resources(): Array<Resource> {
-    const dmmf = (this.client as any)._baseDmmf as DMMFClass;
-    const { modelMap } = dmmf;
+    const dmmf = Prisma.dmmf.datamodel;
 
-    if (!modelMap) return [];
+    if (!dmmf?.models) return [];
 
-    return Object.values(modelMap).map((model: DMMF.Model) => {
+    return dmmf.models.map((model: DMMF.Model) => {
       const resource = new Resource({ model, client: this.client });
       return resource;
     });
   }
 
-  public static isAdapterFor(prisma: PrismaClient): boolean {
-    const dmmf = ((prisma as any)._baseDmmf as DMMFClass);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public static isAdapterFor(_prisma?: PrismaClient): boolean {
+    const dmmf = Prisma.dmmf.datamodel;
 
-    return !!dmmf?.modelMap && !!Object.values(dmmf?.modelMap ?? {}).length;
+    return dmmf?.models?.length > 0;
   }
 }
