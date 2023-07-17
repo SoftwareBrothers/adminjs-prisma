@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { DMMF } from '@prisma/client/runtime';
+import { DMMF } from '@prisma/client/runtime/library.js';
 import { Filter } from 'adminjs';
 
 import { Property } from '../Property.js';

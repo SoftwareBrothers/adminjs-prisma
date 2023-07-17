@@ -2,9 +2,8 @@
 import express from 'express';
 import AdminJS from 'adminjs';
 import AdminJSExpress from '@adminjs/express';
-import { Database, Resource } from '@adminjs/prisma';
 import { PrismaClient } from '@prisma/client';
-import { DMMFClass } from '@prisma/client/runtime';
+import { Database, Resource, getModelByName } from '@adminjs/prisma';
 
 const PORT = process.env.port || 3000;
 
@@ -15,11 +14,9 @@ AdminJS.registerAdapter({ Database, Resource });
 const run = async () => {
   const app = express();
 
-  const dmmf = ((prisma as any)._baseDmmf as DMMFClass);
-
   const admin = new AdminJS({
     resources: [{
-      resource: { model: dmmf.modelMap.Post, client: prisma },
+      resource: { model: getModelByName('Post'), client: prisma },
       options: {
         properties: {
           someJson: { type: 'mixed', isArray: true },
@@ -30,10 +27,10 @@ const run = async () => {
         },
       },
     }, {
-      resource: { model: dmmf.modelMap.Profile, client: prisma },
+      resource: { model: getModelByName('Profile'), client: prisma },
       options: {},
     }, {
-      resource: { model: dmmf.modelMap.User, client: prisma },
+      resource: { model: getModelByName('Publisher'), client: prisma },
       options: {},
     }],
   });

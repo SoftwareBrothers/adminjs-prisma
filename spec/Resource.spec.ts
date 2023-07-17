@@ -1,14 +1,13 @@
 import { PrismaClient } from '@prisma/client';
-import { DMMFClass } from '@prisma/client/runtime';
 import { BaseProperty, BaseRecord, Filter } from 'adminjs';
 import { jest } from '@jest/globals';
 
 import { Resource } from '../src/Resource.js';
+import { getModelByName } from '../src/utils/get-model-by-name.js';
 
 jest.useFakeTimers();
 
 const prisma = new PrismaClient();
-const dmmf = ((prisma as any)._baseDmmf as DMMFClass);
 
 /**
  * Test temporarily turned off due to Prisma bug: https://github.com/prisma/prisma/issues/18146
@@ -26,7 +25,7 @@ describe.skip('Resource', () => {
   })
 
   beforeEach(async () => {
-    resource = new Resource({ model: dmmf.modelMap.User, client: prisma });
+    resource = new Resource({ model: getModelByName('User'), client: prisma });
 
     await prisma.profile.deleteMany({});
     await prisma.user.deleteMany({});
@@ -39,7 +38,7 @@ describe.skip('Resource', () => {
 
   describe('.isAdapterFor', () => {
     it('returns true when Prisma model is given', () => {
-      expect(Resource.isAdapterFor({ model: dmmf.modelMap.Post, client: prisma })).toEqual(true);
+      expect(Resource.isAdapterFor({ model: getModelByName('Post'), client: prisma })).toEqual(true);
     });
 
     it('returns false for any other kind of resources', () => {
@@ -135,7 +134,7 @@ describe.skip('Resource', () => {
     });
 
     it('finds by record uuid column', async () => {
-      const uuidResource = new Resource({ model: dmmf.modelMap.UuidExample, client: prisma });
+      const uuidResource = new Resource({ model: getModelByName('UuidExample'), client: prisma });
       const params = await uuidResource.create({ label: 'test' });
       await uuidResource.create({ label: 'another test' });
 
@@ -158,7 +157,7 @@ describe.skip('Resource', () => {
 
     beforeEach(async () => {
       user = await resource.create(data);
-      profileResource = new Resource({ model: dmmf.modelMap.Profile, client: prisma });
+      profileResource = new Resource({ model: getModelByName('Profile'), client: prisma });
     });
 
     it('creates new resource', async () => {

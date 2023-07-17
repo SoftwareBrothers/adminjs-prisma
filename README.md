@@ -27,7 +27,7 @@ Whole code can be found in `example-app` directory in the repository.
 import express from 'express'
 import AdminJS from 'adminjs'
 import AdminJSExpress from '@adminjs/express'
-import { Database, Resource } from '@adminjs/prisma'
+import { Database, Resource, getModelByName } from '@adminjs/prisma'
 import { PrismaClient } from '@prisma/client'
 import { DMMFClass } from '@prisma/client/runtime'
 
@@ -40,18 +40,15 @@ AdminJS.registerAdapter({ Database, Resource })
 const run = async () => {
   const app = express()
 
-  // `_baseDmmf` contains necessary Model metadata. `PrismaClient` type doesn't have it included
-  const dmmf = ((prisma as any)._baseDmmf as DMMFClass)
-
   const admin = new AdminJS({
     resources: [{
-      resource: { model: dmmf.modelMap.Post, client: prisma },
+      resource: { model: getModelByName('Post'), client: prisma },
       options: {},
     }, {
-      resource: { model: dmmf.modelMap.Profile, client: prisma },
+      resource: { model: getModelByName('Profile'), client: prisma },
       options: {},
     }, {
-      resource: { model: dmmf.modelMap.User, client: prisma },
+      resource: { model: getModelByName('Publisher'), client: prisma },
       options: {},
     }],
   })
@@ -86,6 +83,32 @@ yarn test
 ```
 
 Make sure you have an `.env` file with `DATABASE_URL` specified.
+
+## Running example app with local code modifications
+
+MySQL database is required. You can use the database from `adminjs-example-app`:
+https://github.com/SoftwareBrothers/adminjs-example-app/blob/master/docker-compose.yaml#L24
+
+```
+$ yarn
+$ yarn build                  # after making changes or run "yarn dev" and open a new terminal for next command
+$ yarn link
+$ cd example-app
+$ yarn
+$ npx prisma generate
+$ npx prisma migrate dev
+```
+
+Now copy `example-app/node_modules/.prisma` folder into `node_modules/.prisma`. This is required because installing library dependencies detects a different Prisma schema in test folder.
+
+Continue in `example-app` folder:
+```
+$ yarn link "@adminjs/prisma"
+$ yarn build
+$ yarn start
+```
+
+The app should start at port 3000.
 
 ## License
 
