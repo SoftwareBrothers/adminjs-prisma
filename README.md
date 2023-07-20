@@ -19,7 +19,7 @@ import AdminJS from 'adminjs'
 AdminJS.registerAdapter({ Database, Resource })
 ```
 
-## Example
+## Example (Basic)
 
 Whole code can be found in `example-app` directory in the repository.
 
@@ -66,6 +66,58 @@ run()
   .finally(async () => {
     await prisma.$disconnect()
   })
+```
+
+## Example (Custom Client Output Path)
+
+If you defined a custom client output path in your Prisma's schema, for example:
+
+```prisma
+generator client {
+  provider = "prisma-client-js"
+  output = "./client-prisma"
+}
+```
+
+You must:
+* import your custom Prisma client
+* provide it to each resource which uses that Prisma client
+
+*Example*:
+
+```typescript
+// other imports
+import PrismaModule from '../prisma/client-prisma/index.js';
+
+// ...
+
+const prisma = new PrismaModule.PrismaClient();
+
+// ...
+
+// Notice `clientModule` per resource
+const admin = new AdminJS({
+  resources: [{
+    resource: { model: getModelByName('Post', PrismaModule), client: prisma, clientModule: PrismaModule },
+    options: {
+      properties: {
+        someJson: { type: 'mixed', isArray: true },
+        'someJson.number': { type: 'number' },
+        'someJson.string': { type: 'string' },
+        'someJson.boolean': { type: 'boolean' },
+        'someJson.date': { type: 'datetime' },
+      },
+    },
+  }, {
+    resource: { model: getModelByName('Profile', PrismaModule), client: prisma, clientModule: PrismaModule },
+    options: {},
+  }, {
+    resource: { model: getModelByName('Publisher', PrismaModule), client: prisma, clientModule: PrismaModule },
+    options: {},
+  }],
+});
+
+// ...
 ```
 
 ## ManyToOne / ManyToMany

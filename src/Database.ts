@@ -8,13 +8,18 @@ import { Resource } from './Resource.js';
 export class Database extends BaseDatabase {
   private client: PrismaClient;
 
-  public constructor(public readonly prisma: PrismaClient) {
-    super(prisma);
-    this.client = prisma;
+  private clientModule?: any;
+
+  public constructor(args: { client: PrismaClient, clientModule?: any }) {
+    super(args);
+    const { client, clientModule } = args;
+
+    this.client = client;
+    this.clientModule = clientModule;
   }
 
   public resources(): Array<Resource> {
-    const dmmf = Prisma.dmmf.datamodel;
+    const dmmf = this.clientModule?.Prisma.dmmf.datamodel ?? Prisma.dmmf.datamodel;
 
     if (!dmmf?.models) return [];
 
@@ -25,8 +30,10 @@ export class Database extends BaseDatabase {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public static isAdapterFor(_prisma?: PrismaClient): boolean {
-    const dmmf = Prisma.dmmf.datamodel;
+  public static isAdapterFor(args: { client?: PrismaClient, clientModule?: any }): boolean {
+    const { clientModule } = args;
+
+    const dmmf = clientModule?.Prisma.dmmf.datamodel ?? Prisma.dmmf.datamodel;
 
     return dmmf?.models?.length > 0;
   }

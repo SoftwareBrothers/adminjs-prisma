@@ -22,13 +22,13 @@ export class Resource extends BaseResource {
 
   private propertiesObject: Record<string, any>;
 
-  constructor(args: { model: DMMF.Model, client: PrismaClient }) {
+  constructor(args: { model: DMMF.Model, client: PrismaClient, clientModule?: any }) {
     super(args);
 
-    const { model, client } = args;
+    const { model, client, clientModule } = args;
     this.model = model;
     this.client = client;
-    this.enums = getEnums();
+    this.enums = getEnums(clientModule);
     this.manager = this.client[lowerCase(model.name)];
     this.propertiesObject = this.prepareProperties();
   }

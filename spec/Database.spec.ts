@@ -18,13 +18,13 @@ describe('Database', () => {
 
   describe('.isAdapterFor', () => {
     it('returns true when Prisma is properly initialized', () => {
-      expect(Database.isAdapterFor(prisma)).toEqual(true);
+      expect(Database.isAdapterFor({ client: prisma })).toEqual(true);
     });
   });
 
   describe('#resources', () => {
     it('returns all entities', async () => {
-      expect(new Database(prisma).resources()).toHaveLength(4);
+      expect(new Database({ client: prisma }).resources()).toHaveLength(4);
     });
   });
 });
