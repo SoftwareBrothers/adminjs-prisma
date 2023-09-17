@@ -24,7 +24,7 @@ export class Database extends BaseDatabase {
     if (!dmmf?.models) return [];
 
     return dmmf.models.map((model: DMMF.Model) => {
-      const resource = new Resource({ model, client: this.client });
+      const resource = new Resource({ model, client: this.client, clientModule: this.clientModule });
       return resource;
     });
   }
