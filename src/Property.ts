@@ -5,7 +5,7 @@ import { Enums } from './types.js';
 import { DATA_TYPES } from './utils/data-types.js';
 
 export class Property extends BaseProperty {
-  private column: DMMF.Field;
+  public column: DMMF.Field;
 
   private enums: Enums;
 

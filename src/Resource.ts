@@ -22,7 +22,11 @@ export class Resource extends BaseResource {
 
   private propertiesObject: Record<string, any>;
 
-  constructor(args: { model: DMMF.Model, client: PrismaClient, clientModule?: any }) {
+  constructor(args: {
+    model: DMMF.Model;
+    client: PrismaClient;
+    clientModule?: any;
+  }) {
     super(args);
 
     const { model, client, clientModule } = args;
@@ -58,23 +62,53 @@ export class Resource extends BaseResource {
   }
 
   public async count(filter: Filter): Promise<number> {
-    return this.manager.count({ where: convertFilter(this.model.fields, filter) });
+    return this.manager.count({
+      where: convertFilter(this.model.fields, filter),
+    });
   }
 
-  public async find(filter: Filter, params: Record<string, any> = {}): Promise<Array<BaseRecord>> {
+  public async find(
+    filter: Filter,
+    params: Record<string, any> = {},
+  ): Promise<Array<BaseRecord>> {
     const { limit = 10, offset = 0, sort = {} } = params;
-    const { direction, sortBy } = sort as { direction: 'asc' | 'desc', sortBy: string };
+    const { direction, sortBy } = sort as {
+      direction: 'asc' | 'desc';
+      sortBy: string;
+    };
 
+    const orderBy = this.buildSortBy(sortBy, direction);
     const results = await this.manager.findMany({
       where: convertFilter(this.model.fields, filter),
       skip: offset,
       take: limit,
-      orderBy: {
-        [sortBy]: direction,
-      },
+      orderBy,
     });
 
-    return results.map((result) => new BaseRecord(this.prepareReturnValues(result), this));
+    return results.map(
+      (result) => new BaseRecord(this.prepareReturnValues(result), this),
+    );
+  }
+
+  private buildSortBy(path: string, direction: 'asc' | 'desc') {
+    const [basePath, sortBy] = path.split('.');
+    const sortByProperty = this.property(basePath);
+
+    if (
+      sortByProperty?.column.relationName
+      && sortByProperty?.column.kind === 'object'
+      && sortByProperty.column.relationToFields?.length
+    ) {
+      return {
+        [basePath]: {
+          [sortBy ?? sortByProperty.column.relationToFields[0]]: direction,
+        },
+      };
+    }
+
+    return {
+      [basePath]: direction,
+    }
   }
 
   public async findOne(id: string | number): Promise<BaseRecord | null> {
@@ -105,10 +139,14 @@ export class Resource extends BaseResource {
       },
     });
 
-    return results.map((result) => new BaseRecord(this.prepareReturnValues(result), this));
+    return results.map(
+      (result) => new BaseRecord(this.prepareReturnValues(result), this),
+    );
   }
 
-  public async create(params: Record<string, any>): Promise<Record<string, any>> {
+  public async create(
+    params: Record<string, any>,
+  ): Promise<Record<string, any>> {
     const preparedParams = this.prepareParams(params);
 
     const result = await this.manager.create({ data: preparedParams });
@@ -116,7 +154,10 @@ export class Resource extends BaseResource {
     return this.prepareReturnValues(result);
   }
 
-  public async update(pk: string | number, params: Record<string, any> = {}): Promise<Record<string, any>> {
+  public async update(
+    pk: string | number,
+    params: Record<string, any> = {},
+  ): Promise<Record<string, any>> {
     const idProperty = this.properties().find((property) => property.isId());
     if (!idProperty) return {};
 
@@ -143,25 +184,41 @@ export class Resource extends BaseResource {
     });
   }
 
-  public static isAdapterFor(args: { model: DMMF.Model, client: PrismaClient }): boolean {
+  public static isAdapterFor(args: {
+    model: DMMF.Model;
+    client: PrismaClient;
+  }): boolean {
     const { model, client } = args;
 
-    return !!model?.name && !!model?.fields.length && !!client?.[lowerCase(model.name)];
+    return (
+      !!model?.name
+      && !!model?.fields.length
+      && !!client?.[lowerCase(model.name)]
+    );
   }
 
   private prepareProperties(): { [propertyPath: string]: Property } {
     const { fields = [] } = this.model;
 
-    return fields.reduce((memo, field) => {
-      if (field.isReadOnly || (field.relationName && !field.relationFromFields?.length)) {
+    const properties = fields.reduce((memo, field) => {
+      if (
+        field.isReadOnly
+        || (field.relationName && !field.relationFromFields?.length)
+      ) {
         return memo;
       }
 
-      const property = new Property(field, Object.keys(memo).length, this.enums);
+      const property = new Property(
+        field,
+        Object.keys(memo).length,
+        this.enums,
+      );
       memo[property.path()] = property;
 
       return memo;
     }, {});
+
+    return properties;
   }
 
   private prepareParams(params: Record<string, any>): Record<string, any> {
@@ -178,23 +235,31 @@ export class Resource extends BaseResource {
       const foreignColumnName = property.foreignColumnName();
 
       if (type === 'reference' && foreignColumnName) {
-        preparedParams[foreignColumnName] = convertParam(property, this.model.fields, param);
+        preparedParams[foreignColumnName] = convertParam(
+          property,
+          this.model.fields,
+          param,
+        );
 
         // eslint-disable-next-line no-continue
         continue;
       }
 
       if (property.isArray()) {
-        preparedParams[key] = param ? param.map((p) => convertParam(property, this.model.fields, p)) : param
+        preparedParams[key] = param
+          ? param.map((p) => convertParam(property, this.model.fields, p))
+          : param;
       } else {
-        preparedParams[key] = convertParam(property, this.model.fields, param)
+        preparedParams[key] = convertParam(property, this.model.fields, param);
       }
     }
 
     return preparedParams;
   }
 
-  private prepareReturnValues(params: Record<string, any>): Record<string, any> {
+  private prepareReturnValues(
+    params: Record<string, any>,
+  ): Record<string, any> {
     const preparedValues: Record<string, any> = {};
 
     for (const property of this.properties()) {
