@@ -1,6 +1,6 @@
 {
   "name": "@adminjs/prisma",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "Prisma adapter for AdminJS",
   "keywords": [
     "prisma",
