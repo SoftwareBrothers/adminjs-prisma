@@ -20,7 +20,9 @@ export class Resource extends BaseResource {
 
   private manager: ModelManager;
 
-  private propertiesObject: Record<string, any>;
+  private propertiesObject: Record<string, Property>;
+
+  private idProperty: Property;
 
   constructor(args: {
     model: DMMF.Model;
@@ -35,6 +37,7 @@ export class Resource extends BaseResource {
     this.enums = getEnums(clientModule);
     this.manager = this.client[lowerCase(model.name)];
     this.propertiesObject = this.prepareProperties();
+    this.idProperty = this.properties().find((p) => p.isId())!;
   }
 
   public databaseName(): string {
@@ -69,15 +72,18 @@ export class Resource extends BaseResource {
 
   public async find(
     filter: Filter,
-    params: Record<string, any> = {},
+    params: {
+      limit?: number;
+      offset?: number;
+      sort?: {
+        sortBy?: string;
+        direction?: 'asc' | 'desc';
+      };
+    } = {},
   ): Promise<Array<BaseRecord>> {
     const { limit = 10, offset = 0, sort = {} } = params;
-    const { direction, sortBy } = sort as {
-      direction: 'asc' | 'desc';
-      sortBy: string;
-    };
 
-    const orderBy = this.buildSortBy(sortBy, direction);
+    const orderBy = this.buildSortBy(sort);
     const results = await this.manager.findMany({
       where: convertFilter(this.model.fields, filter),
       skip: offset,
@@ -90,7 +96,12 @@ export class Resource extends BaseResource {
     );
   }
 
-  private buildSortBy(path: string, direction: 'asc' | 'desc') {
+  private buildSortBy(sort: { sortBy?: string; direction?: 'asc' | 'desc' } = {}) {
+    let { sortBy: path } = sort;
+    const { direction = 'desc' } = sort;
+
+    if (!path) path = this.idProperty.path();
+
     const [basePath, sortBy] = path.split('.');
     const sortByProperty = this.property(basePath);
 
@@ -108,7 +119,7 @@ export class Resource extends BaseResource {
 
     return {
       [basePath]: direction,
-    }
+    };
   }
 
   public async findOne(id: string | number): Promise<BaseRecord | null> {
