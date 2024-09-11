@@ -7,9 +7,9 @@ import { DATA_TYPES } from './utils/data-types.js';
 export class Property extends BaseProperty {
   public column: DMMF.Field;
 
-  private enums: Enums;
+  protected enums: Enums;
 
-  private columnPosition: number;
+  protected columnPosition: number;
 
   // eslint-disable-next-line default-param-last
   constructor(column: DMMF.Field, columnPosition = 0, enums: Enums) {

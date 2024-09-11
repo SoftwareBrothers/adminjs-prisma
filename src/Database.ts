@@ -6,9 +6,9 @@ import { BaseDatabase } from 'adminjs';
 import { Resource } from './Resource.js';
 
 export class Database extends BaseDatabase {
-  private client: PrismaClient;
+  protected client: PrismaClient;
 
-  private clientModule?: any;
+  protected clientModule?: any;
 
   public constructor(args: { client: PrismaClient, clientModule?: any }) {
     super(args);
