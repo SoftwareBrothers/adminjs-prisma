@@ -12,17 +12,17 @@ import { convertFilter, convertParam } from './utils/converters.js';
 import { getEnums } from './utils/get-enums.js';
 
 export class Resource extends BaseResource {
-  private client: PrismaClient;
+  protected client: PrismaClient;
 
-  private model: DMMF.Model;
+  protected model: DMMF.Model;
 
-  private enums: Enums;
+  protected enums: Enums;
 
-  private manager: ModelManager;
+  protected manager: ModelManager;
 
-  private propertiesObject: Record<string, Property>;
+  protected propertiesObject: Record<string, Property>;
 
-  private idProperty: Property;
+  protected idProperty: Property;
 
   constructor(args: {
     model: DMMF.Model;
@@ -96,7 +96,7 @@ export class Resource extends BaseResource {
     );
   }
 
-  private buildSortBy(sort: { sortBy?: string; direction?: 'asc' | 'desc' } = {}) {
+  protected buildSortBy(sort: { sortBy?: string; direction?: 'asc' | 'desc' } = {}) {
     let { sortBy: path } = sort;
     const { direction = 'desc' } = sort;
 
@@ -208,7 +208,7 @@ export class Resource extends BaseResource {
     );
   }
 
-  private prepareProperties(): { [propertyPath: string]: Property } {
+  protected prepareProperties(): { [propertyPath: string]: Property } {
     const { fields = [] } = this.model;
 
     const properties = fields.reduce((memo, field) => {
@@ -232,7 +232,7 @@ export class Resource extends BaseResource {
     return properties;
   }
 
-  private prepareParams(params: Record<string, any>): Record<string, any> {
+  protected prepareParams(params: Record<string, any>): Record<string, any> {
     const preparedParams: Record<string, any> = {};
 
     for (const property of this.properties()) {
@@ -268,7 +268,7 @@ export class Resource extends BaseResource {
     return preparedParams;
   }
 
-  private prepareReturnValues(
+  protected prepareReturnValues(
     params: Record<string, any>,
   ): Record<string, any> {
     const preparedValues: Record<string, any> = {};
