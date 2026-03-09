@@ -108,5 +108,5 @@ export { Database } from './Database.js';
 export { convertParam, convertFilter } from './utils/converters.js';
 export { getModelByName } from './utils/get-model-by-name.js';
 export { getEnums } from './utils/get-enums.js';
-export type { Enums, ModelManager } from './types.js';
+export type { Enums, ModelManager, PrismaModel, PrismaField, PrismaMetadata, PrismaCompositePrimaryKey } from './types.js';
 export default { Database, Resource };

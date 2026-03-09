@@ -1,40 +1,44 @@
 /* eslint-disable class-methods-use-this */
-import { Prisma, PrismaClient } from '@prisma/client';
-import { DMMF } from '@prisma/client/runtime/library.js';
 import { BaseDatabase } from 'adminjs';
 
 import { Resource } from './Resource.js';
+import { PrismaMetadata } from './types.js';
 
 export class Database extends BaseDatabase {
-  protected client: PrismaClient;
+  protected client: any;
 
-  protected clientModule?: any;
+  protected metadata: PrismaMetadata;
 
-  public constructor(args: { client: PrismaClient, clientModule?: any }) {
+  public constructor(args: { client: any, dmmf: PrismaMetadata }) {
     super(args);
-    const { client, clientModule } = args;
+    const { client, dmmf } = args;
 
     this.client = client;
-    this.clientModule = clientModule;
+    this.metadata = dmmf;
   }
 
   public resources(): Array<Resource> {
-    const dmmf = this.clientModule?.Prisma.dmmf.datamodel ?? Prisma.dmmf.datamodel;
+    if (!this.metadata?.models) return [];
 
-    if (!dmmf?.models) return [];
+    const resources: Array<Resource> = [];
 
-    return dmmf.models.map((model: DMMF.Model) => {
-      const resource = new Resource({ model, client: this.client });
-      return resource;
-    });
+    // eslint-disable-next-line no-restricted-syntax
+    for (const model of Object.values(this.metadata.models)) {
+      const resource = new Resource({
+        model,
+        client: this.client,
+        enums: this.metadata.enums ?? {},
+      });
+      resources.push(resource);
+    }
+
+    return resources;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public static isAdapterFor(args: { client?: PrismaClient, clientModule?: any }): boolean {
-    const { clientModule } = args;
+  public static isAdapterFor(args: { client?: any, dmmf?: PrismaMetadata }): boolean {
+    const { dmmf } = args;
 
-    const dmmf = clientModule?.Prisma.dmmf.datamodel ?? Prisma.dmmf.datamodel;
-
-    return dmmf?.models?.length > 0;
+    return !!dmmf?.models;
   }
 }

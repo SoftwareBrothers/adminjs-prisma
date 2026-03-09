@@ -1,18 +1,17 @@
-import { DMMF } from '@prisma/client/runtime/library.js';
 import { BaseProperty, PropertyType } from 'adminjs';
 
-import { Enums } from './types.js';
+import { Enums, PrismaField } from './types.js';
 import { DATA_TYPES } from './utils/data-types.js';
 
 export class Property extends BaseProperty {
-  public column: DMMF.Field;
+  public column: PrismaField;
 
   protected enums: Enums;
 
   protected columnPosition: number;
 
   // eslint-disable-next-line default-param-last
-  constructor(column: DMMF.Field, columnPosition = 0, enums: Enums) {
+  constructor(column: PrismaField, columnPosition = 0, enums: Enums) {
     const path = column.name;
     super({ path });
     this.column = column;
@@ -65,11 +64,11 @@ export class Property extends BaseProperty {
   public availableValues(): Array<string> | null {
     if (!this.isEnum()) return null;
 
-    const enumSchema = this.enums[this.column.type];
+    const enumValues = this.enums[this.column.type];
 
-    if (!enumSchema) return null;
+    if (!enumValues) return null;
 
-    return enumSchema.values.map((value) => String(value.name)) ?? [];
+    return enumValues.map((value) => String(value)) ?? [];
   }
 
   public position(): number {
@@ -78,6 +77,10 @@ export class Property extends BaseProperty {
 
   public isEnum(): boolean {
     return this.column.kind === 'enum';
+  }
+
+  public isArray(): boolean {
+    return this.column.isList;
   }
 
   public type(): PropertyType {

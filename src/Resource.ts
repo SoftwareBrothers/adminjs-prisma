@@ -2,19 +2,19 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-param-reassign */
 import { BaseResource, Filter, BaseRecord, flat } from 'adminjs';
-import { PrismaClient } from '@prisma/client';
-import { DMMF } from '@prisma/client/runtime/library.js';
 
 import { Property } from './Property.js';
 import { lowerCase } from './utils/helpers.js';
-import { ModelManager, Enums } from './types.js';
+import { ModelManager, Enums, PrismaModel, PrismaField } from './types.js';
 import { convertFilter, convertParam } from './utils/converters.js';
-import { getEnums } from './utils/get-enums.js';
+
+// Separator used to encode composite primary keys into a single string
+const COMPOSITE_KEY_SEPARATOR = '___';
 
 export class Resource extends BaseResource {
-  protected client: PrismaClient;
+  protected client: any;
 
-  protected model: DMMF.Model;
+  protected model: PrismaModel;
 
   protected enums: Enums;
 
@@ -24,20 +24,95 @@ export class Resource extends BaseResource {
 
   protected idProperty: Property;
 
+  // Fields that make up the composite primary key (if any)
+  protected compositeKeyFields: readonly string[] | null = null;
+
   constructor(args: {
-    model: DMMF.Model;
-    client: PrismaClient;
-    clientModule?: any;
+    model: PrismaModel;
+    client: any;
+    enums: Enums;
   }) {
     super(args);
 
-    const { model, client, clientModule } = args;
+    const { model, client, enums } = args;
     this.model = model;
     this.client = client;
-    this.enums = getEnums(clientModule);
+    this.enums = enums;
     this.manager = this.client[lowerCase(model.name)];
     this.propertiesObject = this.prepareProperties();
-    this.idProperty = this.properties().find((p) => p.isId())!;
+
+    // Check for single @id field first
+    const singleIdProperty = this.properties().find((p) => p.isId());
+
+    if (singleIdProperty) {
+      this.idProperty = singleIdProperty;
+    } else if (model.primaryKey?.fields?.length) {
+      // Handle composite primary key (@@id([...]))
+      this.compositeKeyFields = model.primaryKey.fields;
+      // Create a virtual 'id' property that AdminJS can use
+      const virtualIdField: PrismaField = {
+        name: 'id',
+        kind: 'scalar',
+        type: 'String',
+        isList: false,
+        isRequired: true,
+        isId: true,
+        isReadOnly: true,
+      };
+      const virtualIdProperty = new Property(virtualIdField, -1, enums);
+      this.propertiesObject.id = virtualIdProperty;
+      this.idProperty = virtualIdProperty;
+    } else {
+      // Fallback: no ID property found
+      this.idProperty = undefined as any;
+    }
+  }
+
+  /**
+   * Encodes composite key field values into a single string ID
+   */
+  protected encodeCompositeId(record: Record<string, any>): string {
+    if (!this.compositeKeyFields) return record.id;
+    return this.compositeKeyFields
+      .map((field) => String(record[field] ?? ''))
+      .join(COMPOSITE_KEY_SEPARATOR);
+  }
+
+  /**
+   * Decodes a composite ID string back into individual field values
+   */
+  protected decodeCompositeId(id: string | number): Record<string, any> {
+    if (!this.compositeKeyFields) return {};
+    const values = String(id).split(COMPOSITE_KEY_SEPARATOR);
+    const result: Record<string, any> = {};
+    this.compositeKeyFields.forEach((field, index) => {
+      // Convert to appropriate type based on the field definition
+      const fieldDef = this.model.fields.find((f) => f.name === field);
+      const value = values[index] ?? '';
+      if (fieldDef?.type === 'Int' || fieldDef?.type === 'BigInt') {
+        result[field] = parseInt(value, 10);
+      } else {
+        result[field] = value;
+      }
+    });
+    return result;
+  }
+
+  /**
+   * Builds the Prisma 'where' clause for composite primary keys
+   */
+  protected buildCompositeWhereClause(id: string | number): Record<string, any> {
+    if (!this.compositeKeyFields) {
+      return {
+        [this.idProperty.path()]: convertParam(this.idProperty, this.model.fields, id),
+      };
+    }
+    const decodedValues = this.decodeCompositeId(id);
+    // Prisma uses a special format for composite keys: fieldA_fieldB: { fieldA: val, fieldB: val }
+    const compositeKeyName = this.compositeKeyFields.join('_');
+    return {
+      [compositeKeyName]: decodedValues,
+    };
   }
 
   public databaseName(): string {
@@ -92,15 +167,38 @@ export class Resource extends BaseResource {
     });
 
     return results.map(
-      (result) => new BaseRecord(this.prepareReturnValues(result), this),
+      (result) => new BaseRecord(this.prepareReturnValuesWithCompositeId(result), this),
     );
+  }
+
+  protected prepareReturnValuesWithCompositeId(
+    result: Record<string, any>,
+  ): Record<string, any> {
+    const prepared = this.prepareReturnValues(result);
+    // Inject virtual 'id' for composite primary keys
+    if (this.compositeKeyFields) {
+      prepared.id = this.encodeCompositeId(result);
+    }
+    return prepared;
   }
 
   protected buildSortBy(sort: { sortBy?: string; direction?: 'asc' | 'desc' } = {}) {
     let { sortBy: path } = sort;
     const { direction = 'desc' } = sort;
 
-    if (!path) path = this.idProperty.path();
+    if (!path) {
+      // For composite keys, use the first field since 'id' doesn't exist as a real column
+      if (this.compositeKeyFields?.length) {
+        path = this.compositeKeyFields[0];
+      } else {
+        path = this.idProperty.path();
+      }
+    }
+
+    // If path is 'id' but we have composite keys, redirect to first composite field
+    if (path === 'id' && this.compositeKeyFields?.length) {
+      path = this.compositeKeyFields[0];
+    }
 
     const [basePath, sortBy] = path.split('.');
     const sortByProperty = this.property(basePath);
@@ -123,35 +221,47 @@ export class Resource extends BaseResource {
   }
 
   public async findOne(id: string | number): Promise<BaseRecord | null> {
-    const idProperty = this.properties().find((property) => property.isId());
-    if (!idProperty) return null;
+    if (!this.idProperty && !this.compositeKeyFields) return null;
 
+    const whereClause = this.buildCompositeWhereClause(id);
     const result = await this.manager.findUnique({
-      where: {
-        [idProperty.path()]: convertParam(idProperty, this.model.fields, id),
-      },
+      where: whereClause,
     });
     if (!result) return null;
 
-    return new BaseRecord(this.prepareReturnValues(result), this);
+    return new BaseRecord(this.prepareReturnValuesWithCompositeId(result), this);
   }
 
   public async findMany(
     ids: Array<string | number>,
   ): Promise<Array<BaseRecord>> {
-    const idProperty = this.properties().find((property) => property.isId());
-    if (!idProperty) return [];
+    if (!this.idProperty && !this.compositeKeyFields) return [];
 
-    const results = await this.manager.findMany({
-      where: {
-        [idProperty.path()]: {
-          in: ids.map((id) => convertParam(idProperty, this.model.fields, id)),
+    let results: any[];
+
+    if (this.compositeKeyFields) {
+      // For composite keys, we need to use OR with each decoded key
+      const orConditions = ids.map((id) => {
+        const decodedValues = this.decodeCompositeId(id);
+        return decodedValues;
+      });
+      results = await this.manager.findMany({
+        where: {
+          OR: orConditions,
         },
-      },
-    });
+      });
+    } else {
+      results = await this.manager.findMany({
+        where: {
+          [this.idProperty.path()]: {
+            in: ids.map((id) => convertParam(this.idProperty, this.model.fields, id)),
+          },
+        },
+      });
+    }
 
     return results.map(
-      (result) => new BaseRecord(this.prepareReturnValues(result), this),
+      (result) => new BaseRecord(this.prepareReturnValuesWithCompositeId(result), this),
     );
   }
 
@@ -162,42 +272,38 @@ export class Resource extends BaseResource {
 
     const result = await this.manager.create({ data: preparedParams });
 
-    return this.prepareReturnValues(result);
+    return this.prepareReturnValuesWithCompositeId(result);
   }
 
   public async update(
     pk: string | number,
     params: Record<string, any> = {},
   ): Promise<Record<string, any>> {
-    const idProperty = this.properties().find((property) => property.isId());
-    if (!idProperty) return {};
+    if (!this.idProperty && !this.compositeKeyFields) return {};
 
     const preparedParams = this.prepareParams(params);
+    const whereClause = this.buildCompositeWhereClause(pk);
 
     const result = await this.manager.update({
-      where: {
-        [idProperty.path()]: convertParam(idProperty, this.model.fields, pk),
-      },
+      where: whereClause,
       data: preparedParams,
     });
 
-    return this.prepareReturnValues(result);
+    return this.prepareReturnValuesWithCompositeId(result);
   }
 
   public async delete(id: string | number): Promise<void> {
-    const idProperty = this.properties().find((property) => property.isId());
-    if (!idProperty) return;
+    if (!this.idProperty && !this.compositeKeyFields) return;
 
+    const whereClause = this.buildCompositeWhereClause(id);
     await this.manager.delete({
-      where: {
-        [idProperty.path()]: convertParam(idProperty, this.model.fields, id),
-      },
+      where: whereClause,
     });
   }
 
   public static isAdapterFor(args: {
-    model: DMMF.Model;
-    client: PrismaClient;
+    model: PrismaModel;
+    client: any;
   }): boolean {
     const { model, client } = args;
 
@@ -212,10 +318,14 @@ export class Resource extends BaseResource {
     const { fields = [] } = this.model;
 
     const properties = fields.reduce((memo, field) => {
-      if (
-        field.isReadOnly
-        || (field.relationName && !field.relationFromFields?.length)
-      ) {
+      // Skip readonly fields
+      if (field.isReadOnly) {
+        return memo;
+      }
+
+      // Skip non-list relations without FK (the "virtual" side of One-to-One/Many-to-One)
+      // But KEEP list relations (One-to-Many reverse, Many-to-Many) for navigation
+      if (field.relationName && !field.relationFromFields?.length && !field.isList) {
         return memo;
       }
 

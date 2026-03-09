@@ -18,6 +18,9 @@
       "require": "./lib/index.js"
     }
   },
+  "bin": {
+    "adminjs-prisma-generator": "./lib/generator.js"
+  },
   "scripts": {
     "clean": "rm -fR lib",
     "build": "tsc",
@@ -26,7 +29,8 @@
     "ts-node": "ts-node",
     "lint": "eslint './src/**/*.{ts,js}' './spec/**/*.{ts,js}' './example-app/**/*.{ts,js}' --ignore-pattern 'build' --ignore-pattern 'yarn.lock'",
     "check:all": "yarn lint && yarn test && yarn build",
-    "release": "semantic-release"
+    "release": "semantic-release",
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -40,18 +44,21 @@
   "author": "Rafał Dzięgielewski <rafal.dzieg@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
-    "@prisma/client": "^5.0.0 || ^6.0.0",
+    "@prisma/client": "^7.0.0",
     "adminjs": "^7.0.0"
   },
   "prisma": {
     "schema": "spec/prisma/schema.prisma"
   },
   "optionalDependencies": {},
+  "dependencies": {
+    "@prisma/generator-helper": "^6.0.0"
+  },
   "devDependencies": {
     "@commitlint/cli": "^17.4.4",
     "@commitlint/config-conventional": "^17.4.4",
     "@jest/globals": "^29.5.0",
-    "@prisma/client": "^6.10.0",
+    "@prisma/client": "^7.0.0",
     "@semantic-release/git": "^10.0.1",
     "@types/jest": "^29.4.0",
     "@types/node": "^18",
@@ -68,7 +75,7 @@
     "husky": "^4.2.5",
     "jest": "^29.5.0",
     "pg": "^8.10.0",
-    "prisma": "^6.10.0",
+    "prisma": "^7.0.0",
     "semantic-release": "^20.1.1",
     "semantic-release-slack-bot": "^4.0.0",
     "ts-jest": "^29.0.5",

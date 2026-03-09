@@ -3,13 +3,20 @@ import express from 'express';
 import AdminJS from 'adminjs';
 import AdminJSExpress from '@adminjs/express';
 import { Database, Resource, getModelByName } from '@adminjs/prisma';
+import { prismaMetadata } from './generated/adminjs/metadata.js';
 
 // eslint-disable-next-line import/no-relative-packages
 import PrismaModule from '../prisma/client-prisma/index.js';
 
 const PORT = process.env.port || 3000;
 
-const prisma = new PrismaModule.PrismaClient();
+const prisma = new PrismaModule.PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL,
+    },
+  },
+} as any);
 
 AdminJS.registerAdapter({ Database, Resource });
 
@@ -18,7 +25,7 @@ const run = async () => {
 
   const admin = new AdminJS({
     resources: [{
-      resource: { model: getModelByName('Post', PrismaModule), client: prisma, clientModule: PrismaModule },
+      resource: { model: getModelByName('Post', prismaMetadata.models), client: prisma, enums: prismaMetadata.enums },
       options: {
         properties: {
           someJson: { type: 'mixed', isArray: true },
@@ -29,10 +36,10 @@ const run = async () => {
         },
       },
     }, {
-      resource: { model: getModelByName('Profile', PrismaModule), client: prisma, clientModule: PrismaModule },
+      resource: { model: getModelByName('Profile', prismaMetadata.models), client: prisma, enums: prismaMetadata.enums },
       options: {},
     }, {
-      resource: { model: getModelByName('Publisher', PrismaModule), client: prisma, clientModule: PrismaModule },
+      resource: { model: getModelByName('Publisher', prismaMetadata.models), client: prisma, enums: prismaMetadata.enums },
       options: {},
     }],
   });

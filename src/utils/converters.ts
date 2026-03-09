@@ -1,13 +1,13 @@
 /* eslint-disable no-param-reassign */
-import { DMMF } from '@prisma/client/runtime/library.js';
 import { Filter } from 'adminjs';
 
 import { Property } from '../Property.js';
+import { PrismaField } from '../types.js';
 import { safeParseJSON, safeParseNumber } from './helpers.js';
 
 export const convertParam = (
   property: Property,
-  fields: DMMF.Model['fields'],
+  fields: readonly PrismaField[],
   value: string | boolean | number | Record<string, any> | null | undefined,
 ): string | boolean | number | Record<string, any> | null | undefined => {
   const type = property.type();
@@ -30,7 +30,7 @@ export const convertParam = (
   return value;
 };
 
-export const convertFilter = (modelFields: DMMF.Model['fields'], filterObject?: Filter): Record<string, any> => {
+export const convertFilter = (modelFields: readonly PrismaField[], filterObject?: Filter): Record<string, any> => {
   if (!filterObject) return {};
 
   const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-[5|4|3|2|1][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
@@ -56,6 +56,10 @@ export const convertFilter = (modelFields: DMMF.Model['fields'], filterObject?: 
         modelFields,
         filter.value,
       );
+    } else if ((filter.property as Property).isArray() && (filter.property as Property).reference()) {
+      // Collection relations (One-to-Many reverse, Many-to-Many)
+      // Convert to Prisma's 'some' syntax: { lessons: { some: { id: 'xxx' } } }
+      where[name] = { some: { id: filter.value } };
     } else {
       where[name] = { contains: filter.value.toString() };
     }

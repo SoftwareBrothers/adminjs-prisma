@@ -8,116 +8,64 @@ This is an official [AdminJS](https://github.com/SoftwareBrothers/adminjs) adapt
 
 - npm: `npm install @adminjs/prisma`
 
+## Configuration
+
+1. Add the `adminjs-prisma` generator to your `schema.prisma` file:
+
+```prisma
+generator adminjs {
+  provider = "node node_modules/@adminjs/prisma/lib/generator.js"
+}
+```
+
+2. Run `prisma generate` to generate the metadata file:
+
+```bash
+npx prisma generate
+```
+
 ## Usage
 
 The plugin can be registered using standard `AdminJS.registerAdapter` method.
 
 ```typescript
 import { Database, Resource } from '@adminjs/prisma'
+import { prismaMetadata } from './generated/adminjs/metadata.js' // Adjust path to where generate output is
 import AdminJS from 'adminjs'
-
-AdminJS.registerAdapter({ Database, Resource })
-```
-
-## Example (Basic)
-
-Whole code can be found in `example-app` directory in the repository.
-
-```typescript
-import express from 'express'
-import AdminJS from 'adminjs'
-import AdminJSExpress from '@adminjs/express'
-import { Database, Resource, getModelByName } from '@adminjs/prisma'
 import { PrismaClient } from '@prisma/client'
-import { DMMFClass } from '@prisma/client/runtime'
-
-const PORT = process.env.port || 3000
 
 const prisma = new PrismaClient()
 
 AdminJS.registerAdapter({ Database, Resource })
 
-const run = async () => {
-  const app = express()
-
-  const admin = new AdminJS({
-    resources: [{
-      resource: { model: getModelByName('Post'), client: prisma },
-      options: {},
-    }, {
-      resource: { model: getModelByName('Profile'), client: prisma },
-      options: {},
-    }, {
-      resource: { model: getModelByName('Publisher'), client: prisma },
-      options: {},
-    }],
-  })
-
-  const router = AdminJSExpress.buildRouter(admin)
-
-  app.use(admin.options.rootPath, router)
-
-  app.listen(PORT, () => {
-    console.log(`Example app listening at http://localhost:${PORT}`)
-  })
-}
-
-run()
-  .finally(async () => {
-    await prisma.$disconnect()
-  })
+const adminJs = new AdminJS({
+  databases: [{
+    client: prisma,
+    dmmf: prismaMetadata, // Pass the generated metadata here
+  }],
+  // ...
+})
 ```
 
-## Example (Custom Client Output Path)
+## Example (Resource-based)
 
-If you defined a custom client output path in your Prisma's schema, for example:
-
-```prisma
-generator client {
-  provider = "prisma-client-js"
-  output = "./client-prisma"
-}
-```
-
-You must:
-* import your custom Prisma client
-* provide it to each resource which uses that Prisma client
-
-*Example*:
+If you prefer to add resources manually:
 
 ```typescript
-// other imports
-import PrismaModule from '../prisma/client-prisma/index.js';
+import { getModelByName } from '@adminjs/prisma'
+import { prismaMetadata } from './generated/adminjs/metadata.js'
 
 // ...
 
-const prisma = new PrismaModule.PrismaClient();
-
-// ...
-
-// Notice `clientModule` per resource
-const admin = new AdminJS({
+const adminJs = new AdminJS({
   resources: [{
-    resource: { model: getModelByName('Post', PrismaModule), client: prisma, clientModule: PrismaModule },
-    options: {
-      properties: {
-        someJson: { type: 'mixed', isArray: true },
-        'someJson.number': { type: 'number' },
-        'someJson.string': { type: 'string' },
-        'someJson.boolean': { type: 'boolean' },
-        'someJson.date': { type: 'datetime' },
-      },
+    resource: {
+      model: getModelByName('Post', prismaMetadata),
+      client: prisma,
     },
-  }, {
-    resource: { model: getModelByName('Profile', PrismaModule), client: prisma, clientModule: PrismaModule },
-    options: {},
-  }, {
-    resource: { model: getModelByName('Publisher', PrismaModule), client: prisma, clientModule: PrismaModule },
     options: {},
   }],
-});
-
-// ...
+})
 ```
 
 ## ManyToOne / ManyToMany

@@ -1,12 +1,10 @@
-import { Prisma } from '@prisma/client';
+import { PrismaModel } from '../types.js';
 
-export const getModelByName = (name: string, clientModule?: any) => {
-  const dmmf = clientModule?.Prisma.dmmf.datamodel ?? Prisma.dmmf.datamodel;
-
-  const model = dmmf.models.find(({ name: modelName }) => modelName === name);
+export const getModelByName = (name: string, models?: Record<string, PrismaModel>) => {
+  const model = models?.[name];
 
   if (!model) {
-    throw new Error(`Could not find model: "${name}" in Prisma's DMMF!`);
+    throw new Error(`Could not find model: "${name}" in Prisma Metadata!`);
   }
 
   return model;
